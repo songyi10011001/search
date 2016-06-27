@@ -32,7 +32,7 @@
   <name>Search Solr MapReduce Indexer</name>
 
   <properties>
-    <hadoop.version>${cdh.mr1.version}</hadoop.version>
+    <hadoop.version>${cdh.hadoop.version}</hadoop.version>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 

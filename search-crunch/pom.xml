@@ -25,7 +25,7 @@
   </parent>
 
   <properties>
-    <hadoop.version>${cdh.mr1.version}</hadoop.version>
+    <hadoop.version>${cdh.hadoop.version}</hadoop.version>
     <crunch.version>${cdh.crunch.version}</crunch.version>
     <kite.version>${cdh.kite.version}</kite.version>
     <spark.version>${cdh.spark.version}</spark.version>
