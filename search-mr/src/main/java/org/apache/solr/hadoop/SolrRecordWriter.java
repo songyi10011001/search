@@ -16,6 +16,7 @@
  */
 package org.apache.solr.hadoop;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.filecache.DistributedCache;
 import org.apache.hadoop.fs.FileSystem;
@@ -35,6 +36,7 @@ import org.apache.solr.core.SolrResourceLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -139,6 +141,17 @@ class SolrRecordWriter<K, V> extends RecordWriter<K, V> {
     }
     LOG.info("Creating embedded Solr server with solrHomeDir: " + solrHomeDir + ", fs: " + fs + ", outputShardDir: " + outputShardDir);
 
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Listing files contained in solrHomeDir {} ...", solrHomeDir);
+      int i = 0;
+      for (File file : FileUtils.listFiles(new File(solrHomeDir.toString()), null, true)) {
+        // strip off common path prefix for better human readability
+        String relPath = file.toString();
+        relPath = relPath.substring(solrHomeDir.toString().length() + 1, relPath.length());
+        LOG.debug("solrHomeDirFile[{}]: {}", i++, relPath);
+      }
+    }
+    
     Path solrDataDir = new Path(outputShardDir, "data");
 
     String dataDirStr = solrDataDir.toUri().toString();
