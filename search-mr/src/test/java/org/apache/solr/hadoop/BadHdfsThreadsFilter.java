@@ -29,6 +29,8 @@ public class BadHdfsThreadsFilter implements ThreadFilter {
       return true;
     } else if (name.startsWith("LeaseRenewer")) { // SOLR-7287
       return true;
+    } else if (name.startsWith("org.apache.hadoop.fs.FileSystem$Statistics$StatisticsDataReferenceCleaner")) { // CDH-43084
+      return true;
     }
     return false;
   }
