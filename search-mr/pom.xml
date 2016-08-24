@@ -202,7 +202,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire.version}</version>
         <configuration>
-          <argLine>-Xmx2048m -XX:MaxDirectMemorySize=2048m -XX:MaxPermSize=128M</argLine>
+          <argLine>-Xmx4096m -XX:MaxDirectMemorySize=2048m -XX:MaxPermSize=512M</argLine>
           <environmentVariables>
             <MALLOC_ARENA_MAX>4</MALLOC_ARENA_MAX>
           </environmentVariables>
