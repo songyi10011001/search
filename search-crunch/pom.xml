@@ -31,7 +31,7 @@
     <spark.version>${cdh.spark.version}</spark.version>
     <parquet.version>${cdh.parquet.version}</parquet.version>
     <argparse4j.version>0.4.3</argparse4j.version>
-    <scala.base.version>2.10</scala.base.version>
+    <scala.base.version>${cdh.scala.binary.version}</scala.base.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
