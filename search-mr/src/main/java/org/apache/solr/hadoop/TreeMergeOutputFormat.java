@@ -20,10 +20,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
-import com.google.common.base.Charsets;
+import java.lang.invoke.MethodHandles;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.NullWritable;
@@ -39,8 +39,9 @@ import org.apache.lucene.index.MergePolicy;
 import org.apache.lucene.index.TieredMergePolicy;
 import org.apache.lucene.misc.IndexMergeTool;
 import org.apache.lucene.store.Directory;
-import org.apache.lucene.util.Version;
+import org.apache.lucene.store.NoLockFactory;
 import org.apache.solr.store.hdfs.HdfsDirectory;
+import org.apache.solr.util.RTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +51,7 @@ import com.google.common.base.Preconditions;
  * See {@link IndexMergeTool}.
  */
 public class TreeMergeOutputFormat extends FileOutputFormat<Text, NullWritable> {
-  
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   @Override
   public RecordWriter getRecordWriter(TaskAttemptContext context) throws IOException {
     Utils.getLogConfigFile(context.getConfiguration());
@@ -69,7 +70,7 @@ public class TreeMergeOutputFormat extends FileOutputFormat<Text, NullWritable> 
     private final HeartBeater heartBeater;
     private final TaskAttemptContext context;
     
-    private static final Logger LOG = LoggerFactory.getLogger(TreeMergeRecordWriter.class);
+    private static final Logger LOG = log;
 
     public TreeMergeRecordWriter(TaskAttemptContext context, Path workDir) {
       this.workDir = new Path(workDir, "data/index");
@@ -95,10 +96,10 @@ public class TreeMergeOutputFormat extends FileOutputFormat<Text, NullWritable> 
       writeShardNumberFile(context);      
       heartBeater.needHeartBeat();
       try {
-        Directory mergedIndex = new HdfsDirectory(workDir, context.getConfiguration());
+        Directory mergedIndex = new HdfsDirectory(workDir, NoLockFactory.INSTANCE, context.getConfiguration());
         
         // TODO: shouldn't we pull the Version from the solrconfig.xml?
-        IndexWriterConfig writerConfig = new IndexWriterConfig(Version.LUCENE_CURRENT, null)
+        IndexWriterConfig writerConfig = new IndexWriterConfig(null)
             .setOpenMode(OpenMode.CREATE).setUseCompoundFile(false)
             //.setMergePolicy(mergePolicy) // TODO: grab tuned MergePolicy from solrconfig.xml?
             //.setMergeScheduler(...) // TODO: grab tuned MergeScheduler from solrconfig.xml?
@@ -129,43 +130,42 @@ public class TreeMergeOutputFormat extends FileOutputFormat<Text, NullWritable> 
         
         Directory[] indexes = new Directory[shards.size()];
         for (int i = 0; i < shards.size(); i++) {
-          indexes[i] = new HdfsDirectory(shards.get(i), context.getConfiguration());
+          indexes[i] = new HdfsDirectory(shards.get(i), NoLockFactory.INSTANCE, context.getConfiguration());
         }
 
         context.setStatus("Logically merging " + shards.size() + " shards into one shard");
         LOG.info("Logically merging " + shards.size() + " shards into one shard: " + workDir);
-        long start = System.nanoTime();
+        RTimer timer = new RTimer();
         
         writer.addIndexes(indexes); 
         // TODO: avoid intermediate copying of files into dst directory; rename the files into the dir instead (cp -> rename) 
         // This can improve performance and turns this phase into a true "logical" merge, completing in constant time.
         // See https://issues.apache.org/jira/browse/LUCENE-4746
-        
+
+        timer.stop();
         if (LOG.isDebugEnabled()) {
-          context.getCounter(SolrCounters.class.getName(), SolrCounters.LOGICAL_TREE_MERGE_TIME.toString()).increment(System.currentTimeMillis() - start);
+          context.getCounter(SolrCounters.class.getName(), SolrCounters.LOGICAL_TREE_MERGE_TIME.toString()).increment((long) timer.getTime());
         }
-        float secs = (System.nanoTime() - start) / (float)(1.0e9);
-        LOG.info("Logical merge took {} secs", secs);        
+        LOG.info("Logical merge took {}ms", timer.getTime());
         int maxSegments = context.getConfiguration().getInt(TreeMergeMapper.MAX_SEGMENTS_ON_TREE_MERGE, Integer.MAX_VALUE);
         context.setStatus("Optimizing Solr: forcing mtree merge down to " + maxSegments + " segments");
         LOG.info("Optimizing Solr: forcing tree merge down to {} segments", maxSegments);
-        start = System.nanoTime();
+        timer = new RTimer();
         if (maxSegments < Integer.MAX_VALUE) {
           writer.forceMerge(maxSegments); 
           // TODO: consider perf enhancement for no-deletes merges: bulk-copy the postings data 
           // see http://lucene.472066.n3.nabble.com/Experience-with-large-merge-factors-tp1637832p1647046.html
         }
+        timer.stop();
         if (LOG.isDebugEnabled()) {
-          context.getCounter(SolrCounters.class.getName(), SolrCounters.PHYSICAL_TREE_MERGE_TIME.toString()).increment(System.currentTimeMillis() - start);
+          context.getCounter(SolrCounters.class.getName(), SolrCounters.PHYSICAL_TREE_MERGE_TIME.toString()).increment((long) timer.getTime());
         }
-        secs = (System.nanoTime() - start) / (float)(1.0e9);
-        LOG.info("Optimizing Solr: done forcing tree merge down to {} segments in {} secs", maxSegments, secs);
-        
-        start = System.nanoTime();
+        LOG.info("Optimizing Solr: done forcing tree merge down to {} segments in {}ms", maxSegments, timer.getTime());
+
+        timer = new RTimer();
         LOG.info("Optimizing Solr: Closing index writer");
         writer.close();
-        secs = (System.nanoTime() - start) / (float)(1.0e9);
-        LOG.info("Optimizing Solr: Done closing index writer in {} secs", secs);
+        LOG.info("Optimizing Solr: Done closing index writer in {}ms", timer.getTime());
         context.setStatus("Done");
       } finally {
         heartBeater.cancelHeartBeat();
@@ -188,7 +188,7 @@ public class TreeMergeOutputFormat extends FileOutputFormat<Text, NullWritable> 
       LOG.debug("Merging into outputShardNum: " + outputShardNum + " from taskId: " + taskId);
       Path shardNumberFile = new Path(workDir.getParent().getParent(), TreeMergeMapper.SOLR_SHARD_NUMBER);
       OutputStream out = shardNumberFile.getFileSystem(context.getConfiguration()).create(shardNumberFile);
-      Writer writer = new OutputStreamWriter(out, Charsets.UTF_8);
+      Writer writer = new OutputStreamWriter(out, StandardCharsets.UTF_8);
       writer.write(String.valueOf(outputShardNum));
       writer.flush();
       writer.close();

@@ -16,6 +16,7 @@
  */
 package org.apache.solr.hadoop;
 
+import java.lang.invoke.MethodHandles;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +59,7 @@ public class SolrCloudPartitioner extends Partitioner<Text, SolrInputDocumentWri
   public static final String ZKHOST = SolrCloudPartitioner.class.getName() + ".zkHost";
   public static final String COLLECTION = SolrCloudPartitioner.class.getName() + ".collection";
   
-  private static final Logger LOG = LoggerFactory.getLogger(SolrCloudPartitioner.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   
   public SolrCloudPartitioner() {}
 
@@ -113,7 +114,7 @@ public class SolrCloudPartitioner extends Partitioner<Text, SolrInputDocumentWri
     String keyStr = key.toString();
     
     // TODO: scalability: replace linear search in HashBasedRouter.hashToSlice() with binary search on sorted hash ranges
-    Slice slice = docRouter.getTargetSlice(keyStr, doc, emptySolrParams, docCollection); 
+    Slice slice = docRouter.getTargetSlice(keyStr, doc, null, emptySolrParams, docCollection); 
     
 //    LOG.info("slice: {}", slice);
     if (slice == null) {

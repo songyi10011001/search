@@ -66,7 +66,7 @@ import com.google.common.base.Charsets;
 @ThreadLeakLingering(linger = 0)
 @ThreadLeakZombies(Consequence.CONTINUE)
 @ThreadLeakScope(Scope.NONE)
-@Slow
+//@Slow
 @SuppressSSL // SSL does not work with this test for currently unknown reasons
 public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
 
@@ -127,7 +127,7 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
 
   @BeforeClass
   public static void setupClass() throws Exception {
-    solrHomeDirectory = createTempDir();
+    solrHomeDirectory = createTempDir().toFile();
     assumeTrue(
         "Currently this test can only be run without the lucene test security policy in place",
         System.getProperty("java.security.manager", "").equals(""));
@@ -136,8 +136,8 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
         Boolean.parseBoolean(System.getProperty("tests.disableHdfs", "false")));
     
     assumeFalse("FIXME: This test does not work with Windows because of native library requirements", Constants.WINDOWS);
-    assumeFalse("FIXME: This test fails under Java 8 due to the Saxon dependency - see SOLR-1301", Constants.JRE_IS_MINIMUM_JAVA8);
-    assumeFalse("FIXME: This test fails under J9 due to the Saxon dependency - see SOLR-1301", System.getProperty("java.vm.info", "<?>").contains("IBM J9"));
+//    assumeFalse("FIXME: This test fails under Java 8 due to the Saxon dependency - see SOLR-1301", Constants.JRE_IS_MINIMUM_JAVA8);
+//    assumeFalse("FIXME: This test fails under J9 due to the Saxon dependency - see SOLR-1301", System.getProperty("java.vm.info", "<?>").contains("IBM J9"));
     assumeTrue("This test has issues with locales with non-Arabic digits",
         "1".equals(NumberFormat.getInstance().format(1)));
     assumeTrue("This test has issues with HDFS Xttrs",
@@ -145,7 +145,7 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
     
     AbstractZkTestCase.SOLRHOME = solrHomeDirectory;
     FileUtils.copyDirectory(MINIMR_CONF_DIR, solrHomeDirectory);
-    File dataDir = createTempDir();
+    File dataDir = createTempDir().toFile();
     tempDir = dataDir.getAbsolutePath();
     new File(tempDir).mkdirs();
     FileUtils.copyFile(new File(RESOURCES_DIR + "/custom-mimetypes.xml"), new File(tempDir + "/custom-mimetypes.xml"));
