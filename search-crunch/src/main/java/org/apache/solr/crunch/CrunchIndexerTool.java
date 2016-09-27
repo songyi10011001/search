@@ -73,7 +73,7 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
-import org.apache.solr.client.solrj.SolrServer;
+import org.apache.solr.client.solrj.SolrClient;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.crunch.CrunchIndexerToolOptions.PipelineType;
 import org.apache.solr.security.util.job.JobSecurityUtil;
@@ -204,7 +204,7 @@ public class CrunchIndexerTool extends Configured implements Tool {
         String serviceName = secureLocator.getZkHost() != null ?
           secureLocator.getZkHost() : secureLocator.getServerUrl();
         Job job = new Job(getConf());
-        SolrServer solrServer = secureLocator.getSolrServer();
+        SolrClient solrServer = secureLocator.getSolrServer();
         credentialsExecutor = new JobCredentialsExecutor(solrServer, serviceName, job);
         JobSecurityUtil.initCredentials(solrServer, job, serviceName);
         // pass the serviceName to the DoFn via the conf
@@ -551,7 +551,7 @@ public class CrunchIndexerTool extends Configured implements Tool {
       SolrLocator solrLocator = new SolrLocator(
           ConfigFactory.parseMap(solrLocatorMap),
           new MorphlineContext.Builder().build());
-      SolrServer solrServer = solrLocator.getSolrServer();
+      SolrClient solrServer = solrLocator.getSolrServer();
       float secs;
       try {
         long start = System.currentTimeMillis();
@@ -569,7 +569,7 @@ public class CrunchIndexerTool extends Configured implements Tool {
       } catch (IOException e) {
         throw new RuntimeException(e);
       } finally {
-        solrServer.shutdown();
+        solrServer.close();
       }
       
       if (isDryRun) {
@@ -731,10 +731,10 @@ public class CrunchIndexerTool extends Configured implements Tool {
   ///////////////////////////////////////////////////////////////////////////////
   private static abstract class CredentialsExecutor {
 
-    protected SolrServer solrServer;
+    protected SolrClient solrServer;
     protected String serviceName;
 
-    public CredentialsExecutor(SolrServer solrServer, String serviceName) {
+    public CredentialsExecutor(SolrClient solrServer, String serviceName) {
       this.solrServer = solrServer;
       this.serviceName = serviceName;
     }
@@ -751,7 +751,7 @@ public class CrunchIndexerTool extends Configured implements Tool {
     
     private Job job;
 
-    public JobCredentialsExecutor(SolrServer solrServer, String serviceName, Job job) {
+    public JobCredentialsExecutor(SolrClient solrServer, String serviceName, Job job) {
       super(solrServer, serviceName);
       this.job = job;
     }
@@ -761,7 +761,7 @@ public class CrunchIndexerTool extends Configured implements Tool {
       try {
         JobSecurityUtil.cleanupCredentials(solrServer, job, serviceName);
       } finally {
-        solrServer.shutdown();
+        solrServer.close();
       }
     }
 
@@ -778,7 +778,7 @@ public class CrunchIndexerTool extends Configured implements Tool {
     
     private Configuration conf;
 
-    public FileCredentialsExecutor(SolrServer solrServer, String serviceName, Configuration conf) {
+    public FileCredentialsExecutor(SolrClient solrServer, String serviceName, Configuration conf) {
       super(solrServer, serviceName);
       this.conf = conf;
     }
@@ -788,7 +788,7 @@ public class CrunchIndexerTool extends Configured implements Tool {
        try {
          JobSecurityUtil.cleanupCredentials(solrServer, conf, serviceName);
        } finally {
-         solrServer.shutdown();
+         solrServer.close();
        }
     }
 
