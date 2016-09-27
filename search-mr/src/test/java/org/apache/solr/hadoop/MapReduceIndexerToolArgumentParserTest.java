@@ -43,6 +43,8 @@ import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.cloud.AbstractZkTestCase;
 import org.apache.solr.hadoop.dedup.NoChangeUpdateConflictResolver;
 import org.apache.solr.hadoop.dedup.RetainMostRecentUpdateConflictResolver;
+import org.apache.solr.util.BadHdfsThreadsFilter;
+import org.apache.solr.util.BadMrClusterThreadsFilter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
