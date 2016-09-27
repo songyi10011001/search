@@ -37,13 +37,6 @@
 
   <profiles>
     <profile>
-      <id>yarn</id>
-      <properties>
-        <hadoop.version>${cdh.hadoop.version}</hadoop.version>
-      </properties>
-    </profile>
-    
-    <profile>
       <id>OSX</id>
       <activation>
         <os><family>mac</family></os>
@@ -137,7 +130,7 @@
     
     <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs</artifactId>
+      <artifactId>hadoop-hdfs-client</artifactId>
       <version>${hadoop.version}</version>
       <scope>provided</scope>
     </dependency>

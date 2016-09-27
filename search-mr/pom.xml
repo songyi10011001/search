@@ -42,15 +42,6 @@
     <test.build.data>${test.build.dir}</test.build.data>
   </properties>
 
-  <profiles>
-    <profile>
-      <id>yarn</id>
-      <properties>
-        <hadoop.version>${cdh.hadoop.version}</hadoop.version>
-      </properties>
-    </profile>
-  </profiles>
-
   <dependencies>
 
     <dependency> <!-- see http://lucene.apache.org/solr -->
@@ -69,7 +60,7 @@
 
     <dependency>
       <groupId>org.apache.hadoop</groupId>
-      <artifactId>hadoop-hdfs</artifactId>
+      <artifactId>hadoop-hdfs-client</artifactId>
       <version>${hadoop.version}</version>
       <scope>provided</scope>
     </dependency>
