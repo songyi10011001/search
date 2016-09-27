@@ -33,6 +33,8 @@
 
   <properties>
     <hadoop.version>${cdh.hadoop.version}</hadoop.version>
+    <!--<hadoop.version>3.0.0-alpha1-cdh6.x-SNAPSHOT</hadoop.version>-->
+    <!--<hadoop.version>3.0.0-SNAPSHOT</hadoop.version>-->
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
@@ -68,6 +70,30 @@
     <dependency>
       <groupId>org.apache.solr</groupId>
       <artifactId>solr-core</artifactId>
+      <version>${solr.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-jdk14</artifactId> <!-- instead use slf4j on top of log4j or logback  -->
+        </exclusion>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+        <!-- The current version of the httpclient dependency from solr (2.4.3)
+          does not work with the current version of commons-codec (1.4) that
+          is on the hadoop classpath.  Bumping the version of httpclient is
+          probably the easiest way to address this.  -->
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.solr</groupId>
+      <artifactId>solr-solrj</artifactId>
       <version>${solr.version}</version>
       <exclusions>
         <exclusion>
