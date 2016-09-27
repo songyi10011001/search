@@ -37,6 +37,7 @@ import org.apache.solr.crunch.CrunchIndexerToolOptions.PipelineType;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.kitesdk.morphline.api.MorphlineRuntimeException;
 import org.kitesdk.morphline.solr.AbstractSolrMorphlineZkTest;
@@ -88,8 +89,6 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
   protected MemoryCrunchIndexerToolTest(PipelineType pipelineType, boolean isDryRun) {
     this.pipelineType = pipelineType;
     this.isDryRun = isDryRun;
-    sliceCount = 1;
-    shardCount = 1;
   }
     
   @Before
@@ -98,9 +97,8 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
     super.setUp();
   }
 
-  @Override
+  @Test
   public void doTest() throws Exception {
-    waitForRecoveriesToFinish(false);
     resetTest();
     testStreamTextInputFile();
     resetTest();
@@ -141,7 +139,7 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
       resetTest();
       testIllegalCommandLineClassNameArgument();
     }
-    cloudClient.shutdown();
+    cluster.getSolrClient().close();
   }
   
   @Override
@@ -157,8 +155,8 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
     numExpectedExceptionRecords = 0;
     parallelMorphlineInits = MorphlineInitRateLimiter.UNLIMITED_PARALLEL_MORPHLINE_INITS;
     
-    cloudClient.deleteByQuery("*:*"); // delete everything!
-    cloudClient.commit();
+    cluster.getSolrClient().deleteByQuery("*:*"); // delete everything!
+    cluster.getSolrClient().commit();
   }
   
   private String[] getInitialArgs(String morphlineConfigFile) {
@@ -378,7 +376,7 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
       List<Map<String, Object>> records;
       records = new ArrayList();
       commit();        
-      QueryResponse rsp = cloudClient.query(new SolrQuery("*:*").setRows(100000).addSort("text", SolrQuery.ORDER.asc));
+      QueryResponse rsp = cluster.getSolrClient().query(new SolrQuery("*:*").setRows(100000).addSort("text", SolrQuery.ORDER.asc));
       //System.out.println(rsp);
       Iterator<SolrDocument> iter = rsp.getResults().iterator();
       while (iter.hasNext()) {
@@ -403,7 +401,7 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
   private PipelineResult runPipeline(String[] args, boolean expectFailure) throws Exception {
     CrunchIndexerTool tool = new CrunchIndexerTool();
     Configuration config = tmpDir.getDefaultConfiguration();
-    config.set(CrunchIndexerTool.MORPHLINE_VARIABLE_PARAM + ".ZK_HOST", zkServer.getZkAddress());
+    config.set(CrunchIndexerTool.MORPHLINE_VARIABLE_PARAM + ".ZK_HOST", cluster.getZkServer().getZkAddress());
     config.set(CrunchIndexerTool.MORPHLINE_VARIABLE_PARAM + ".myMorphlineVar", "foo");
     if (isRandomizingWithDoFn) {
       config.setInt(CrunchIndexerTool.MAIN_MEMORY_RANDOMIZATION_THRESHOLD, -1); 
