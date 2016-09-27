@@ -213,7 +213,7 @@ public class MapReduceIndexerTool extends Configured implements Tool {
               "# 3) file was last modified less than 100000 minutes ago\n" +
               "# 4) file size is between 1 MB and 1 GB\n" +
               "# Also include extra library jar file containing JSON tweet Java parser:\n" +
-              "hadoop jar target/search-mr-*-job.jar " + HdfsFindTool.class.getName() + " \\\n" + 
+              "hadoop fs \\\n" + 
               "  -find hdfs:///user/$USER/solrloadtest/twitter/tweets \\\n" + 
               "  -type f \\\n" + 
               "  -name 'sample-statuses*.gz' \\\n" + 
