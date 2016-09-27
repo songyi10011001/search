@@ -569,7 +569,11 @@ public class CrunchIndexerTool extends Configured implements Tool {
       } catch (IOException e) {
         throw new RuntimeException(e);
       } finally {
-        solrServer.close();
+        try {
+          solrServer.close();
+        } catch (IOException e) {
+          ; // ignore
+        }
       }
       
       if (isDryRun) {
