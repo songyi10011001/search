@@ -144,11 +144,6 @@
     </dependency>
 
     <dependency>
-      <groupId>org.apache.tika</groupId>
-      <artifactId>tika-xmp</artifactId>
-    </dependency>
-    
-    <dependency>
       <groupId>org.kitesdk</groupId>
       <artifactId>kite-morphlines-solr-core</artifactId>
       <type>test-jar</type>
