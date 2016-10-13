@@ -150,10 +150,13 @@ public class CrunchIndexerTool extends Configured implements Tool {
   public int run(String[] args) throws Exception {
     CrunchIndexerToolOptions opts = new CrunchIndexerToolOptions();
     Integer exitCode = new CrunchIndexerToolArgumentParser().parseArgs(args, getConf(), opts);
-    if (exitCode != null) {
-      return exitCode;
+    if (exitCode == null) {
+      exitCode = run(opts);
     }
-    return run(opts);
+    if (exitCode.intValue() != 0 && opts.pipelineType == PipelineType.spark) {
+      throw new RuntimeException("CrunchIndexerTool Spark pipeline failed"); // CDH-45888
+    }
+    return exitCode;
   }
 
   /** API for Java clients; visible for testing; may become a public API eventually */
