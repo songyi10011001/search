@@ -40,6 +40,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.lucene.util.Constants;
 import org.apache.solr.SolrTestCaseJ4;
+import org.apache.solr.SolrTestCaseJ4.SuppressSSL;
 import org.apache.solr.cloud.AbstractZkTestCase;
 import org.apache.solr.hadoop.dedup.NoChangeUpdateConflictResolver;
 import org.apache.solr.hadoop.dedup.RetainMostRecentUpdateConflictResolver;
@@ -59,6 +60,7 @@ import org.slf4j.LoggerFactory;
     BadHdfsThreadsFilter.class, BadMrClusterThreadsFilter.class // hdfs currently leaks thread(s)
 })
 @ThreadLeakScope(Scope.NONE)
+@SuppressSSL // SSL does not work with this test for currently unknown reasons
 public class MapReduceIndexerToolArgumentParserTest extends SolrTestCaseJ4 {
   
   private Configuration conf; 
@@ -214,7 +216,7 @@ public class MapReduceIndexerToolArgumentParserTest extends SolrTestCaseJ4 {
     assertEquals(new Integer(0), parser.parseArgs(args, conf, opts));
     String helpText = new String(bout.toByteArray(), StandardCharsets.UTF_8);
     assertTrue(helpText.contains("MapReduce batch job driver that "));
-    assertTrue(helpText.contains("bin/hadoop command"));
+    assertTrue(helpText.contains("--morphline-file "));
     assertEquals(0, berr.toByteArray().length);
   }
   

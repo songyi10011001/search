@@ -45,6 +45,8 @@ import org.apache.lucene.util.LuceneTestCase.Slow;
 import org.apache.solr.SolrTestCaseJ4;
 import org.apache.solr.SolrTestCaseJ4.SuppressSSL;
 import org.apache.solr.cloud.AbstractZkTestCase;
+import org.apache.solr.util.BadHdfsThreadsFilter;
+import org.apache.solr.util.BadMrClusterThreadsFilter;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -54,6 +56,7 @@ import org.junit.Test;
 
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakAction;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakAction.Action;
+import com.carrotsearch.randomizedtesting.annotations.ThreadLeakFilters;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakLingering;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope;
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakScope.Scope;
@@ -65,13 +68,16 @@ import com.google.common.base.Charsets;
 @ThreadLeakAction({Action.WARN})
 @ThreadLeakLingering(linger = 0)
 @ThreadLeakZombies(Consequence.CONTINUE)
+@ThreadLeakFilters(defaultFilters = true, filters = {
+    BadHdfsThreadsFilter.class, BadMrClusterThreadsFilter.class // hdfs currently leaks thread(s)
+})
 @ThreadLeakScope(Scope.NONE)
 //@Slow
 @SuppressSSL // SSL does not work with this test for currently unknown reasons
 public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
 
   @Rule
-  public Timeout globalTimeout= new Timeout(180*1000);
+  public Timeout globalTimeout= new Timeout(360*1000);
   
   private static final boolean ENABLE_LOCAL_JOB_RUNNER = false; // for debugging only
   private static final String RESOURCES_DIR = getFile("morphlines-core.marker").getParent();  
