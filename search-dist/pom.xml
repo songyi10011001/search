@@ -18,12 +18,12 @@
   <parent>
     <groupId>com.cloudera.search</groupId>
     <artifactId>search-parent</artifactId>
-    <version>1.0.0-cdh5.10.0-SNAPSHOT</version>
+    <version>1.0.0-cdh5.10.0</version>
   </parent>
 
   <groupId>com.cloudera.search</groupId>
   <artifactId>search-dist</artifactId>
-  <version>1.0.0-cdh5.10.0-SNAPSHOT</version>
+  <version>1.0.0-cdh5.10.0</version>
   <name>Search distribution</name>
   <packaging>pom</packaging>
 
