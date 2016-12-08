@@ -1,3 +1,4 @@
+// This class is a work-around for a bug in solr-6.2 introduced by SOLR-9219 - it overrides Solr's standard TreeMergeOutputFormat class with a version that uses NoLockFactory 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
@@ -41,6 +42,7 @@ import org.apache.lucene.misc.IndexMergeTool;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.NoLockFactory;
 import org.apache.solr.store.hdfs.HdfsDirectory;
+import org.apache.solr.update.SolrIndexWriter;
 import org.apache.solr.util.RTimer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -96,7 +98,8 @@ public class TreeMergeOutputFormat extends FileOutputFormat<Text, NullWritable> 
       writeShardNumberFile(context);      
       heartBeater.needHeartBeat();
       try {
-        Directory mergedIndex = new HdfsDirectory(workDir, NoLockFactory.INSTANCE, context.getConfiguration());
+        Directory mergedIndex = new HdfsDirectory(workDir, NoLockFactory.INSTANCE, context.getConfiguration(), HdfsDirectory.DEFAULT_BUFFER_SIZE);
+//        Directory mergedIndex = new HdfsDirectory(workDir, context.getConfiguration());
         
         // TODO: shouldn't we pull the Version from the solrconfig.xml?
         IndexWriterConfig writerConfig = new IndexWriterConfig(null)
@@ -130,7 +133,8 @@ public class TreeMergeOutputFormat extends FileOutputFormat<Text, NullWritable> 
         
         Directory[] indexes = new Directory[shards.size()];
         for (int i = 0; i < shards.size(); i++) {
-          indexes[i] = new HdfsDirectory(shards.get(i), NoLockFactory.INSTANCE, context.getConfiguration());
+          indexes[i] = new HdfsDirectory(shards.get(i), NoLockFactory.INSTANCE, context.getConfiguration(), HdfsDirectory.DEFAULT_BUFFER_SIZE);
+//          indexes[i] = new HdfsDirectory(shards.get(i), context.getConfiguration());
         }
 
         context.setStatus("Logically merging " + shards.size() + " shards into one shard");
@@ -162,10 +166,18 @@ public class TreeMergeOutputFormat extends FileOutputFormat<Text, NullWritable> 
         }
         LOG.info("Optimizing Solr: done forcing tree merge down to {} segments in {}ms", maxSegments, timer.getTime());
 
+        // SOLR-9408
+        // Set Solr's commit data so the created index is usable by SolrCloud. E.g. Currently SolrCloud relies on
+        // commitTimeMSec in the commit data to do replication.
+        SolrIndexWriter.setCommitData(writer);
+
         timer = new RTimer();
         LOG.info("Optimizing Solr: Closing index writer");
         writer.close();
         LOG.info("Optimizing Solr: Done closing index writer in {}ms", timer.getTime());
+//        for (Directory index : indexes) { 
+//          index.close(); 
+//        } 
         context.setStatus("Done");
       } finally {
         heartBeater.cancelHeartBeat();

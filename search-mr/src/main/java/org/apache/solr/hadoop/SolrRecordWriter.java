@@ -167,7 +167,7 @@ class SolrRecordWriter<K, V> extends RecordWriter<K, V> {
     CoreContainer container = new CoreContainer(loader);
     container.load();
 
-    SolrCore core = container.create("core1", Paths.get(solrHomeDir.toString()), ImmutableMap.of(CoreDescriptor.CORE_DATADIR, dataDirStr));
+    SolrCore core = container.create("core1", Paths.get(solrHomeDir.toString()), ImmutableMap.of(CoreDescriptor.CORE_DATADIR, dataDirStr), false);
 //    SolrCore core = container.create("", ImmutableMap.of(CoreDescriptor.CORE_DATADIR, dataDirStr));
     
     if (!(core.getDirectoryFactory() instanceof HdfsDirectoryFactory)) {
