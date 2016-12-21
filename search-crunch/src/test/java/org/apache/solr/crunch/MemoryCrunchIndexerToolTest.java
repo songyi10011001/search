@@ -95,6 +95,7 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
   public void setUp() throws Exception {
     System.setProperty("solr.tests.cloud.cm.enabled", "false"); // disable Solr ChaosMonkey
     super.setUp();
+    cluster.getSolrClient().setDefaultCollection("collection1");
   }
 
   @Test
@@ -256,13 +257,19 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
   }
   
   private void testStreamTextInputFileWithNoCommit() throws Exception {
-    String inputPath = tmpDir.copyResourceFileName("test-documents/hello1.txt");
-    String[] expected = new String[] {"hello foo", "hello world"};
-    String[] args = getInitialArgs(LOAD_SOLR_LINE);
-    args = ObjectArrays.concat(args, inputPath);    
-    args = ObjectArrays.concat(args, "--no-commit");    
-    PipelineResult pipelineResult = runIntoSolr(args, expected);
-    Assert.assertTrue(pipelineResult.getStageResults().get(0).getCounterValue("morphline", "morphline.app.numRecords") > 0);
+    boolean oldValue = isDryRun;
+    isDryRun = true;
+    try {
+      String inputPath = tmpDir.copyResourceFileName("test-documents/hello1.txt");
+      String[] expected = new String[] {"hello foo", "hello world"};
+      String[] args = getInitialArgs(LOAD_SOLR_LINE);
+      args = ObjectArrays.concat(args, inputPath);    
+      args = ObjectArrays.concat(args, "--no-commit");    
+      PipelineResult pipelineResult = runIntoSolr(args, expected);
+      Assert.assertTrue(pipelineResult.getStageResults().get(0).getCounterValue("morphline", "morphline.app.numRecords") > 0);
+    } finally {
+      isDryRun = oldValue;
+    }
   }
   
   private void testFileList() throws Exception {

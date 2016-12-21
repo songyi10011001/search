@@ -32,6 +32,7 @@
     <parquet.version>${cdh.parquet.version}</parquet.version>
     <argparse4j.version>0.4.3</argparse4j.version>
     <scala.base.version>${cdh.scala.binary.version}</scala.base.version>
+    <vers.jackson>2.6.5</vers.jackson>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
@@ -184,6 +185,12 @@
     </dependency>
     
     <dependency>
+      <groupId>com.google.re2j</groupId>
+      <artifactId>re2j</artifactId>
+      <version>1.0</version>
+    </dependency>
+    
+    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>${junit.version}</version>
@@ -197,6 +204,22 @@
         <groupId>org.apache.avro</groupId>
         <artifactId>avro</artifactId>
         <version>${avro.version}</version>
+      </dependency>
+
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>${vers.jackson}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>${vers.jackson}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>${vers.jackson}</version>
       </dependency>
 
       <dependency>
@@ -219,7 +242,9 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
         <configuration>
+          <reuseForks>false</reuseForks>
           <argLine>-Xmx512m -XX:MaxPermSize=128M</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>

@@ -30,6 +30,8 @@ import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.embedded.EmbeddedSolrServer;
 import org.apache.solr.client.solrj.response.QueryResponse;
 
+import com.google.common.io.Files;
+
 
 public class UtilsForTests {
   
@@ -41,8 +43,14 @@ public class UtilsForTests {
     for (FileStatus dir : fs.listStatus(outDir)) { // for each shard
       if (dir.getPath().getName().startsWith("part") && dir.isDirectory()) {
         actualShards++;
+        
+        // copy solrHomeDir to ensure it isn't modified across multiple unit tests or multiple EmbeddedSolrServer instances
+        File tmpDir = Files.createTempDir();
+        tmpDir.deleteOnExit();
+        FileUtils.copyDirectory(solrHomeDir, tmpDir);
+
         EmbeddedSolrServer solr = SolrRecordWriter.createEmbeddedSolrServer(
-            new Path(solrHomeDir.getAbsolutePath()), fs, dir.getPath());
+            new Path(tmpDir.getAbsolutePath()), fs, dir.getPath());
         
         try {
           SolrQuery query = new SolrQuery();

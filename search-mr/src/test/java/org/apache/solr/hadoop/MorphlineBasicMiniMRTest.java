@@ -262,8 +262,8 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
           assertEquals("bar.txt", parts.getName());
           assertEquals("hdfs", parts.getScheme());
           assertEquals("localhost", parts.getHost());
-          assertEquals(8020, parts.getPort());
-          assertEquals("hdfs://localhost:8020/user/" + down + "bar.txt", parts.getId());
+          assertEquals(9820, parts.getPort());
+          assertEquals("hdfs://localhost:9820/user/" + down + "bar.txt", parts.getId());
           assertEquals(parts.getId(), parts.getDownloadURL());
           assertFileNotFound(parts);
         }
