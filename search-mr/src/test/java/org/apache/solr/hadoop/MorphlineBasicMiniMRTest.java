@@ -35,7 +35,8 @@ import org.apache.hadoop.hdfs.MiniDFSCluster;
 import org.apache.hadoop.hdfs.XAttrHelper;
 
 import org.apache.hadoop.mapred.JobConf;
-import org.apache.hadoop.mapred.MiniMRCluster;
+import org.apache.hadoop.mapred.MiniMRClientCluster;
+import org.apache.hadoop.mapred.MiniMRClientClusterFactory;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.security.authorize.ProxyUsers;
 import org.apache.hadoop.util.JarFinder;
@@ -72,7 +73,7 @@ import com.google.common.base.Charsets;
     BadHdfsThreadsFilter.class, BadMrClusterThreadsFilter.class // hdfs currently leaks thread(s)
 })
 @ThreadLeakScope(Scope.NONE)
-//@Slow
+@Slow
 @SuppressSSL // SSL does not work with this test for currently unknown reasons
 public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
 
@@ -87,7 +88,7 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
   private static final String SEARCH_ARCHIVES_JAR = JarFinder.getJar(MapReduceIndexerTool.class);
 
   private static MiniDFSCluster dfsCluster = null;
-  private static MiniMRCluster mrCluster = null;
+  private static MiniMRClientCluster mrCluster = null;
   private static int numRuns = 0;
 
   private final String inputAvroFile;
@@ -160,15 +161,7 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
     
     System.setProperty("hadoop.log.dir", new File(solrHomeDirectory, "logs").getAbsolutePath());
     
-    int taskTrackers = 1;
     int dataNodes = 2;
-//    String proxyUser = System.getProperty("user.name");
-//    String proxyGroup = "g";
-//    StringBuilder sb = new StringBuilder();
-//    sb.append("127.0.0.1,localhost");
-//    for (InetAddress i : InetAddress.getAllByName(InetAddress.getLocalHost().getHostName())) {
-//      sb.append(",").append(i.getCanonicalHostName());
-//    }
     
     new File(dataDir, "nm-local-dirs").mkdirs();
     
@@ -186,7 +179,7 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
 //    conf.set(YarnConfiguration.DEFAULT_NM_LOG_DIRS, dataDir + File.separator +  "nm-logs");
     conf.set("testWorkDir", dataDir.getPath() + File.separator +  "testWorkDir");
 
-    dfsCluster = new MiniDFSCluster(conf, dataNodes, true, null);
+    dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(dataNodes).format(true).racks(null).build();
     FileSystem fileSystem = dfsCluster.getFileSystem();
     fileSystem.mkdirs(new Path("/tmp"));
     fileSystem.mkdirs(new Path("/user"));
@@ -194,12 +187,8 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
     fileSystem.setPermission(new Path("/tmp"), FsPermission.valueOf("-rwxrwxrwx"));
     fileSystem.setPermission(new Path("/user"), FsPermission.valueOf("-rwxrwxrwx"));
     fileSystem.setPermission(new Path("/hadoop/mapred/system"), FsPermission.valueOf("-rwx------"));
-    String nnURI = fileSystem.getUri().toString();
-    int numDirs = 1;
-    String[] racks = null;
-    String[] hosts = null;
 
-    mrCluster = new MiniMRCluster(0, 0, taskTrackers, nnURI, numDirs, racks, hosts, null, conf);
+    mrCluster = MiniMRClientClusterFactory.create(MorphlineGoLiveMiniMRTest.class, 1, conf);
     ProxyUsers.refreshSuperUserGroupsConfiguration(conf);
   }
 
@@ -210,7 +199,7 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
     System.clearProperty("test.build.data");
     System.clearProperty("test.cache.data");
     if (mrCluster != null) {
-      mrCluster.shutdown();
+      mrCluster.stop();
       mrCluster = null;
     }
     if (dfsCluster != null) {
@@ -227,8 +216,9 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
     super.tearDown();
   }
 
-  private JobConf getJobConf() {
-    return mrCluster.createJobConf();
+  private JobConf getJobConf() throws IOException {
+    JobConf jobConf = new JobConf(mrCluster.getConfig());
+    return jobConf;
   }
 
   @Test

@@ -136,22 +136,17 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <!--<solr.version>6.0.1</solr.version>-->
-    <!--<solr.expected.version>6.0.1</solr.expected.version> --><!-- sanity check to verify we actually run against the expected version rather than some outdated version -->
     <solr.version>${cdh.solr.version}</solr.version>
     <solr.expected.version>${cdh.solr.version}</solr.expected.version> <!-- sanity check to verify we actually run against the expected version rather than some outdated version -->
-    <!--<avro.version>1.1.0-cdh5.8.0</avro.version>-->
     <avro.version>${cdh.avro.version}</avro.version>
     <httpclient.version>4.4.1</httpclient.version>
     <!--<httpclient.version>4.3.1</httpclient.version>-->
     <httpcomponents.core.version>4.4.1</httpcomponents.core.version>
     <!--<httpcomponents.core.version>4.3</httpcomponents.core.version>-->
 
-    <!--<kite.version>1.0.0-cdh5.8.0</kite.version>-->
     <kite.version>${cdh.kite.version}</kite.version>
     <tika.version>1.5</tika.version>
     <!--<tika.version>${cdh.tika.version}</tika.version>-->
-    <!--<slf4j.version>1.7.5</slf4j.version>-->
     <slf4j.version>${cdh.slf4j.version}</slf4j.version>
     <argparse4j.version>0.4.3</argparse4j.version>
     <codahale.metrics.version>3.0.2</codahale.metrics.version>    

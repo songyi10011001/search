@@ -245,7 +245,7 @@
         <version>${surefire.version}</version>
         <configuration>
           <reuseForks>false</reuseForks>
-          <argLine>-Xmx512m -XX:MaxPermSize=128M</argLine>
+          <argLine>-Xmx512m</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
         </configuration>
       </plugin>
