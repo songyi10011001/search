@@ -189,8 +189,10 @@ public class MorphlineGoLiveMiniMRTest extends AbstractFullDistribZkTestBase {
     } catch (FileNotFoundException e) {
       if (!e.getMessage().contains("No valid image files found")) {
         throw e;
-      } 
+      }
+      
       // retry build() to workaround a spurious race in MiniDFSCluster startup
+      log.warn("Retrying mostly harmless spurious exception", e);
       dfsCluster = miniDFSClusterBuilder.build(); 
     }
     

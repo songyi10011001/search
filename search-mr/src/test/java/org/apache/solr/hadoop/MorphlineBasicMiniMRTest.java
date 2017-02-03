@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Array;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -54,6 +55,8 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.rules.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.junit.Test;
 
 import com.carrotsearch.randomizedtesting.annotations.ThreadLeakAction;
@@ -98,6 +101,8 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
   private static String tempDir;
   
   private static File solrHomeDirectory;
+  
+  private static final Logger log = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
   
   protected MapReduceIndexerTool createTool() {
     return new MapReduceIndexerTool();
@@ -186,8 +191,10 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
     } catch (FileNotFoundException e) {
       if (!e.getMessage().contains("No valid image files found")) {
         throw e;
-      } 
+      }
+      
       // retry build() to workaround a spurious race in MiniDFSCluster startup
+      log.warn("Retrying mostly harmless spurious exception", e);
       dfsCluster = miniDFSClusterBuilder.build(); 
     }
 
