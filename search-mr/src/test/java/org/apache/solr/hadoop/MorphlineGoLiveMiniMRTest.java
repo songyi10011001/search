@@ -17,6 +17,7 @@
 package org.apache.solr.hadoop;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
@@ -182,7 +183,17 @@ public class MorphlineGoLiveMiniMRTest extends AbstractFullDistribZkTestBase {
     SEARCH_ARCHIVES_JAR = JarFinder.getJar(MapReduceIndexerTool.class);
     
     log.info("stepA2");
-    dfsCluster = new MiniDFSCluster.Builder(conf).numDataNodes(dataNodes).format(true).racks(null).build();
+    MiniDFSCluster.Builder miniDFSClusterBuilder = new MiniDFSCluster.Builder(conf).numDataNodes(dataNodes).format(true).racks(null);
+    try {
+      dfsCluster = miniDFSClusterBuilder.build();
+    } catch (FileNotFoundException e) {
+      if (!e.getMessage().contains("No valid image files found")) {
+        throw e;
+      } 
+      // retry build() to workaround a spurious race in MiniDFSCluster startup
+      dfsCluster = miniDFSClusterBuilder.build(); 
+    }
+    
     log.info("stepA3");
     FileSystem fileSystem = dfsCluster.getFileSystem();
     fileSystem.mkdirs(new Path("/tmp"));
