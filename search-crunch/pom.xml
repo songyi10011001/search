@@ -141,7 +141,7 @@
          you can omit this: -->
     <dependency>
       <groupId>org.kitesdk</groupId>
-      <artifactId>kite-morphlines-all-except-tika</artifactId>
+      <artifactId>kite-morphlines-all-except-solrcell</artifactId>
       <version>${kite.version}</version>
       <type>pom</type>
     </dependency>

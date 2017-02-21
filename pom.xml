@@ -231,7 +231,7 @@
 
       <dependency>
         <groupId>org.kitesdk</groupId>
-        <artifactId>kite-morphlines-all-except-tika</artifactId>
+        <artifactId>kite-morphlines-all-except-solrcell</artifactId>
         <version>${kite.version}</version>
         <type>pom</type>
       </dependency>
@@ -447,7 +447,7 @@
               <outputDirectory>${project.build.directory}/lib</outputDirectory>
               <includeScope>runtime</includeScope> <!-- excludes test jars; see http://jira.codehaus.org/browse/MDEP-128 -->
               <excludeScope>provided</excludeScope>
-              <excludeArtifactIds>kite-morphlines-all-except-tika</excludeArtifactIds>
+              <excludeArtifactIds>kite-morphlines-all-except-solrcell</excludeArtifactIds>
             </configuration>
           </execution>
         </executions>
