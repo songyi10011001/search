@@ -45,6 +45,8 @@ import org.slf4j.LoggerFactory;
  * phase into a set of live customer facing Solr servers, typically a SolrCloud.
  */
 class GoLive {
+  
+  static final String INJECT_FOLLOWER_MERGE_FAILURES = "injectGoLiveFollowerFailures"; // for unit tests
 
   private static final Logger LOG = LoggerFactory.getLogger(GoLive.class);
   
@@ -67,9 +69,12 @@ class GoLive {
         LOG.debug("processing: " + dir.getPath());
 
         cnt++;
-        List<String> urls = options.shardUrls.get(cnt);
+        final List<String> urls = options.shardUrls.get(cnt);
+        final Shard shard = new Shard(urls, options.goLiveMinReplicationFactor);
+        LOG.info("Live merging of output shard {} into at least {} out of {} replicas of {}", 
+            dir.getPath(), shard.minMergeSuccessesRequired, urls.size(), urls);
         
-        for (String url : urls) {
+        for (final String url : urls) {
           
           String baseUrl = url;
           if (baseUrl.endsWith("/")) {
@@ -90,6 +95,9 @@ class GoLive {
             @Override
             public Request call() {
               Request req = new Request();
+              req.url = url;
+              req.isLeader = urls.indexOf(url) == 0;
+              req.shard = shard;
               LOG.info("Live merge " + dir.getPath() + " into " + mergeUrl);
               final HttpSolrServer server = new HttpSolrServer(mergeUrl);
               try {
@@ -97,6 +105,9 @@ class GoLive {
                 mergeRequest.setCoreName(name);
                 mergeRequest.setIndexDirs(Arrays.asList(dir.getPath().toString() + "/data/index"));
                 try {
+                  if (!req.isLeader && System.getProperty(INJECT_FOLLOWER_MERGE_FAILURES) != null) {
+                    throw new SolrServerException(INJECT_FOLLOWER_MERGE_FAILURES);
+                  }
                   mergeRequest.process(server);
                   req.success = true;
                 } catch (SolrServerException e) {
@@ -124,11 +135,21 @@ class GoLive {
           
           try {
             Request req = future.get();
-            
-            if (!req.success) {
-              // failed
-              LOG.error("A live merge command failed", req.e);
-              return false;
+            req.shard.numMergeRequestsTodo--;
+            if (req.success) {
+              req.shard.minMergeSuccessesRequired--;
+              assert req.shard.numMergeRequestsTodo >= req.shard.minMergeSuccessesRequired;
+            } else { // merge request failed
+              if (req.isLeader || 
+                  req.shard.numMergeRequestsTodo < req.shard.minMergeSuccessesRequired) { 
+                String kind = req.isLeader ? "leader" : "follower";
+                LOG.error("A required live merge command failed on " + kind + " " + req.url, req.e);
+                return false;
+              }
+              LOG.warn("A live merge command failed on follower " + req.url 
+                  + " but it is still possible that a merge command on sufficiently "
+                  + "many other followers will succeed so we're happily continuing "
+                  + "despite the following exception", req.e);
             }
             
           } catch (ExecutionException e) {
@@ -207,6 +228,24 @@ class GoLive {
   private static final class Request {
     Exception e;
     boolean success = false;
+    boolean isLeader = true;
+    String url;
+    Shard shard;
   }
 
+  
+  private static final class Shard {
+    
+    int numMergeRequestsTodo;
+    int minMergeSuccessesRequired;
+    
+    public Shard(List<String> urls, int minReplicationFactor) {
+      numMergeRequestsTodo = urls.size();
+      if (minReplicationFactor == -1) {
+        minReplicationFactor = urls.size();
+      }
+      minReplicationFactor = Math.min(minReplicationFactor, urls.size());
+      minMergeSuccessesRequired = minReplicationFactor;
+    }
+  }
 }
