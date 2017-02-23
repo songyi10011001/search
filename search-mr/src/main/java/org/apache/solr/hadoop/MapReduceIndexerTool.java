@@ -519,6 +519,20 @@ public class MapReduceIndexerTool extends Configured implements Tool {
         .metavar("STRING")
         .help("The SolrCloud collection to merge shards into when using --go-live and --zk-host. Example: collection1");
       
+      Argument goLiveMinReplicationFactorArg = goLiveGroup.addArgument("--go-live-min-replication-factor")
+        .metavar("INTEGER")
+        .type(Integer.class)
+        .choices(new RangeArgumentChoice(-1, Integer.MAX_VALUE))
+        .setDefault(-1)
+        .help("The minimum number of SolrCloud replicas to successfully merge any final index shard into. "
+            + "The go-live job phase attempts to merge final index shards into all SolrCloud replicas. "
+            + "Some of these merge operations may fail, for example if some SolrCloud servers are down. "
+            + "This option enables indexing jobs to succeed even if some such merge operations fail on SolrCloud followers. "
+            + "Successful merge operations into all leaders are always required for job success, "
+            + "regardless of the value of --go-live-min-replication-factor. "
+            + "-1 indicates require successful merge operations into all replicas. "
+            + "1 indicates require successful merge operations only into leader replicas.");
+
       Argument goLiveThreadsArg = goLiveGroup.addArgument("--go-live-threads")
         .metavar("INTEGER")
         .type(Integer.class)
@@ -573,6 +587,7 @@ public class MapReduceIndexerTool extends Configured implements Tool {
       opts.shards = ns.getInt(shardsArg.getDest());
       opts.shardUrls = buildShardUrls(ns.getList(shardUrlsArg.getDest()), opts.shards);
       opts.goLive = ns.getBoolean(goLiveArg.getDest());
+      opts.goLiveMinReplicationFactor = ns.getInt(goLiveMinReplicationFactorArg.getDest());
       opts.goLiveThreads = ns.getInt(goLiveThreadsArg.getDest());
       opts.collection = ns.getString(collectionArg.getDest());
 
@@ -635,6 +650,7 @@ public class MapReduceIndexerTool extends Configured implements Tool {
     String zkHost;
     boolean useZkSolrConfig;
     Integer goLiveThreads;
+    Integer goLiveMinReplicationFactor;
     List<List<String>> shardUrls;
     List<Path> inputLists;
     List<Path> inputFiles;
