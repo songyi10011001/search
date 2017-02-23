@@ -364,7 +364,7 @@ public class MorphlineGoLiveMiniMRTest extends MiniMRBase {
     } else {
       createCollection(replicatedCollection, 2, 3, 2);
     }
-    waitForRecoveriesToFinish(false);
+    waitForRecoveriesToFinish(replicatedCollection, false);
     cloudClient.setDefaultCollection(replicatedCollection);
     fs.delete(inDir, true);   
     fs.delete(outDir, true);  
@@ -470,37 +470,10 @@ public class MorphlineGoLiveMiniMRTest extends MiniMRBase {
     }
     
     // delete collection
-    ModifiableSolrParams params = new ModifiableSolrParams();
-    params.set("action", CollectionAction.DELETE.toString());
-    params.set(CoreAdminParams.DELETE_INSTANCE_DIR, true);
-    params.set(CoreAdminParams.DELETE_DATA_DIR, true);
-    params.set(CoreAdminParams.DELETE_INDEX, true);
-    params.set("name", replicatedCollection);
-    QueryRequest request = new QueryRequest(params);
-    request.setPath("/admin/collections");
-    cloudClient.request(request);
-
-    
-    long timeout = System.currentTimeMillis() + 10000;
-    while (cloudClient.getZkStateReader().getClusterState().hasCollection(replicatedCollection)) {
-      if (System.currentTimeMillis() > timeout) {
-        throw new AssertionError("Timeout waiting to see removed collection leave clusterstate");
-      }
-      
-      Thread.sleep(200);
-      cloudClient.getZkStateReader().updateClusterState(true);
-    }
-    
-    if (TEST_NIGHTLY) {
-      createCollection(replicatedCollection, 11, 3, 11);
-    } else {
-      createCollection(replicatedCollection, 2, 3, 2);
-    }
-    
-    waitForRecoveriesToFinish(replicatedCollection, false);
-    printLayout();
+    cloudClient.deleteByQuery("*:*");
+    cloudClient.commit();
+    assertEquals(0, executeSolrQuery(cloudClient, "*:*").size());
     assertEquals(0, executeSolrQuery(cloudClient, "*:*").getNumFound());
-    
     
     args = new String[] {
         "--solr-home-dir=" + MINIMR_CONF_DIR.getAbsolutePath(),
@@ -517,15 +490,53 @@ public class MorphlineGoLiveMiniMRTest extends MiniMRBase {
     getShardUrlArgs(argList, replicatedCollection);
     args = concat(args, argList.toArray(new String[0]));
     
-    tool = new MapReduceIndexerTool();
-    res = ToolRunner.run(jobConf, tool, args);
-    assertEquals(0, res);
-    assertTrue(tool.job.isComplete());
-    assertTrue(tool.job.isSuccessful());
+    if (true) {
+      tool = new MapReduceIndexerTool();
+      res = ToolRunner.run(jobConf, tool, args);
+      assertEquals(0, res);
+      assertTrue(tool.job.isComplete());
+      assertTrue(tool.job.isSuccessful());
+      
+      checkConsistency(replicatedCollection);
+      
+      assertEquals(RECORD_COUNT, executeSolrQuery(cloudClient, "*:*").size());
+    }
+
     
-    checkConsistency(replicatedCollection);
+    // run with INJECT_FOLLOWER_MERGE_FAILURES
+    cloudClient.deleteByQuery("*:*");
+    cloudClient.commit();
+    assertEquals(0, executeSolrQuery(cloudClient, "*:*").size());
+    args = new String[] {
+        "--output-dir=" + outDir.toString(),
+        "--mappers=1",
+        "--verbose",
+        "--go-live",
+        random().nextBoolean() ? "--input-list=" + INPATH.toString() : dataDir.toString(), 
+        "--zk-host", zkServer.getZkAddress(), 
+        "--collection", replicatedCollection
+    };
+    args = prependInitialArgs(args);
+
+    if (true) {
+      System.setProperty(GoLive.INJECT_FOLLOWER_MERGE_FAILURES, "true");
+      tool = new MapReduceIndexerTool();
+      res = ToolRunner.run(jobConf, tool, args);
+      assertEquals(-1, res);
+      assertTrue(tool.job.isComplete());
+      assertTrue(tool.job.isSuccessful());
+    }
     
-    assertEquals(RECORD_COUNT, executeSolrQuery(cloudClient, "*:*").size());
+    // run with reduced go-live-min-replication-factor and INJECT_FOLLOWER_MERGE_FAILURES
+    if (true) {
+      args = concat(args, new String[]{"--go-live-min-replication-factor=1"});           
+      System.setProperty(GoLive.INJECT_FOLLOWER_MERGE_FAILURES, "true");
+      tool = new MapReduceIndexerTool();
+      res = ToolRunner.run(jobConf, tool, args);
+      assertEquals(0, res);
+      assertTrue(tool.job.isComplete());
+      assertTrue(tool.job.isSuccessful());
+    }
   }
 
   private void getShardUrlArgs(List<String> args) {
