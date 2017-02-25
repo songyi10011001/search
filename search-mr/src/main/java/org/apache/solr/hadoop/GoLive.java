@@ -239,9 +239,9 @@ class GoLive {
     int numMergeRequestsTodo;
     int minMergeSuccessesRequired;
     
-    public Shard(List<String> urls, int minReplicationFactor) {
+    public Shard(List<String> urls, Integer minReplicationFactor) {
       numMergeRequestsTodo = urls.size();
-      if (minReplicationFactor == -1) {
+      if (minReplicationFactor == null || minReplicationFactor.intValue() == -1) {
         minReplicationFactor = urls.size();
       }
       minReplicationFactor = Math.min(minReplicationFactor, urls.size());
