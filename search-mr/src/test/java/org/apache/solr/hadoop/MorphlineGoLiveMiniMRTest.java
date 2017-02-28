@@ -364,6 +364,7 @@ public class MorphlineGoLiveMiniMRTest extends MiniMRBase {
     } else {
       createCollection(replicatedCollection, 2, 3, 2);
     }
+    waitForRecoveriesToFinish(false);
     waitForRecoveriesToFinish(replicatedCollection, false);
     cloudClient.setDefaultCollection(replicatedCollection);
     fs.delete(inDir, true);   
