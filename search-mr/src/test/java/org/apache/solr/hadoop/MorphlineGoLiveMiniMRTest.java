@@ -79,7 +79,7 @@ import com.google.common.base.Charsets;
 @Slow
 public class MorphlineGoLiveMiniMRTest extends MiniMRBase {
   
-  private static final boolean TEST_NIGHTLY = true;
+  private static final boolean TEST_NIGHTLY = false;
   private static final int RECORD_COUNT = 2104;
 
   public MorphlineGoLiveMiniMRTest() {
