@@ -148,7 +148,7 @@ class GoLive {
               }
               LOG.warn("A live merge command failed on follower " + req.url 
                   + " but it is still possible that a merge command on sufficiently "
-                  + "many other followers will succeed so we're happily continuing "
+                  + "many other replicas will succeed so we are happily continuing "
                   + "despite the following exception", req.e);
             }
             

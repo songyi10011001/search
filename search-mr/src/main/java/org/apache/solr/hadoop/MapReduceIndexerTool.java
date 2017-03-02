@@ -531,7 +531,10 @@ public class MapReduceIndexerTool extends Configured implements Tool {
             + "Successful merge operations into all leaders are always required for job success, "
             + "regardless of the value of --go-live-min-replication-factor. "
             + "-1 indicates require successful merge operations into all replicas. "
-            + "1 indicates require successful merge operations only into leader replicas.");
+            + "1 indicates require successful merge operations only into leader replicas. "
+            + "Note that a value other than -1 reduces SolrCloud replica consistency and can lead to "
+            + "data loss in SolrCloud in some cases, for example if, after MapReduce job completion, "
+            + "a leader disappears before followers have successfully recovered and synced missing data from the leader.");
 
       Argument goLiveThreadsArg = goLiveGroup.addArgument("--go-live-threads")
         .metavar("INTEGER")
