@@ -75,7 +75,7 @@
     </dependency>
     <dependency>
       <groupId>org.kitesdk</groupId>
-      <artifactId>kite-morphlines-all-except-tika</artifactId>
+      <artifactId>kite-morphlines-all-except-solrcell</artifactId>
       <type>pom</type>
     </dependency>
     <dependency>
