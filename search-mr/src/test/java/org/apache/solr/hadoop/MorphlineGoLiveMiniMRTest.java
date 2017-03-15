@@ -96,7 +96,7 @@ import com.carrotsearch.randomizedtesting.annotations.ThreadLeakZombies.Conseque
 //@Nightly
 public class MorphlineGoLiveMiniMRTest extends AbstractFullDistribZkTestBase {
   
-  private static final boolean TEST_NIGHTLY = true;
+  private static final boolean TEST_NIGHTLY = false;
   private static final int RECORD_COUNT = 2104;
   private static final String RESOURCES_DIR = getFile("morphlines-core.marker").getParent();  
   private static final String DOCUMENTS_DIR = RESOURCES_DIR + "/test-documents";
@@ -469,6 +469,7 @@ public class MorphlineGoLiveMiniMRTest extends AbstractFullDistribZkTestBase {
       rsp = createCollection(replicatedCollection, 2, 3, 2);
     }
     assertTrue(rsp.isSuccess());
+    waitForRecoveriesToFinish(false);
     waitForRecoveriesToFinish(replicatedCollection, false);
     cloudClient.setDefaultCollection(replicatedCollection);
     fs.delete(inDir, true);   
@@ -605,19 +606,63 @@ public class MorphlineGoLiveMiniMRTest extends AbstractFullDistribZkTestBase {
     getShardUrlArgs(argList, replicatedCollection);
     args = concat(args, argList.toArray(new String[0]));
     
-    tool = new MapReduceIndexerTool();
-    log.info("stepT10a");
-    res = ToolRunner.run(jobConf, tool, args);
-    log.info("stepT10b");
-    assertEquals(0, res);
-    log.info("stepT10c");
-    assertTrue(tool.job.isComplete());
-    assertTrue(tool.job.isSuccessful());
+    if (true) {
+      tool = new MapReduceIndexerTool();
+      log.info("stepT10a");
+      res = ToolRunner.run(jobConf, tool, args);
+      log.info("stepT10b");
+      assertEquals(0, res);
+      log.info("stepT10c");
+      assertTrue(tool.job.isComplete());
+      assertTrue(tool.job.isSuccessful());
+      
+      checkConsistency(replicatedCollection);
+      
+      assertEquals(RECORD_COUNT, executeSolrQuery(cloudClient, "*:*").size());
+      log.info("stepT10d");
+    }
+
     
-    checkConsistency(replicatedCollection);
+    // run with INJECT_FOLLOWER_MERGE_FAILURES
+    cloudClient.deleteByQuery("*:*");
+    cloudClient.commit();
+    assertEquals(0, executeSolrQuery(cloudClient, "*:*").size());
+    args = new String[] {
+        "--output-dir=" + outDir.toString(),
+        "--mappers=1",
+        "--verbose",
+        "--go-live",
+        random().nextBoolean() ? "--input-list=" + INPATH.toString() : dataDir.toString(), 
+        "--zk-host", zkServer.getZkAddress(), 
+        "--collection", replicatedCollection
+    };
+    args = prependInitialArgs(args);
+
+    if (true) {
+      System.setProperty(GoLive.INJECT_FOLLOWER_MERGE_FAILURES, "true");
+      tool = new MapReduceIndexerTool();
+      log.info("stepT11a");
+      res = ToolRunner.run(jobConf, tool, args);
+      log.info("stepT11b");
+      assertEquals(-1, res);
+      log.info("stepT11c");
+      assertTrue(tool.job.isComplete());
+      assertTrue(tool.job.isSuccessful());
+    }
     
-    assertEquals(RECORD_COUNT, executeSolrQuery(cloudClient, "*:*").size());
-    log.info("stepT10d");
+    // run with reduced go-live-min-replication-factor and INJECT_FOLLOWER_MERGE_FAILURES
+    if (true) {
+      args = concat(args, new String[]{"--go-live-min-replication-factor=1"});           
+      System.setProperty(GoLive.INJECT_FOLLOWER_MERGE_FAILURES, "true");
+      tool = new MapReduceIndexerTool();
+      log.info("stepT12a");
+      res = ToolRunner.run(jobConf, tool, args);
+      log.info("stepT12b");
+      assertEquals(0, res);
+      log.info("stepT12c");
+      assertTrue(tool.job.isComplete());
+      assertTrue(tool.job.isSuccessful());
+    }
   }
 
   private void getShardUrlArgs(List<String> args) {

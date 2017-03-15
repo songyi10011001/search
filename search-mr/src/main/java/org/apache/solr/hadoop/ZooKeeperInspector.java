@@ -66,7 +66,11 @@ final class ZooKeeperInspector {
       List<String> urls = new ArrayList<String>(replicas.size());
       for (Replica replica : replicas) {
         ZkCoreNodeProps props = new ZkCoreNodeProps(replica);
-        urls.add(props.getCoreUrl());
+        if (replica.getStr(Slice.LEADER) == null) {
+          urls.add(props.getCoreUrl()); // add followers at tail
+        } else {
+          urls.add(0, props.getCoreUrl()); // insert leader at head
+        }
       }
       solrUrls.add(urls);
     }
