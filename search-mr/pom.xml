@@ -212,6 +212,7 @@
             <test.build.dir>${test.build.dir}</test.build.dir>
             <test.build.data>${test.build.data}</test.build.data>
             <java.net.preferIPv4Stack>true</java.net.preferIPv4Stack>
+            <java.security.egd>file:/dev/./urandom</java.security.egd>
           </systemPropertyVariables>
         </configuration>
       </plugin>
