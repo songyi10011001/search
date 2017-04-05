@@ -223,6 +223,9 @@
           <reuseForks>false</reuseForks>
           <argLine>-Xmx512m -XX:MaxPermSize=128M</argLine>
           <redirectTestOutputToFile>true</redirectTestOutputToFile>
+          <systemPropertyVariables>
+            <java.security.egd>file:/dev/./urandom</java.security.egd>
+          </systemPropertyVariables>
         </configuration>
       </plugin>
       
