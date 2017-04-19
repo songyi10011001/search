@@ -29,7 +29,7 @@
     <crunch.version>${cdh.crunch.version}</crunch.version>
     <kite.version>${cdh.kite.version}</kite.version>
     <spark.version>${cdh.spark.version}</spark.version>
-    <parquet.version>${cdh.parquet.version}</parquet.version>
+    <parquet.version>${cdh.apache-parquet.version}</parquet.version>
     <argparse4j.version>0.4.3</argparse4j.version>
     <scala.base.version>${cdh.scala.binary.version}</scala.base.version>
     <vers.jackson>2.6.5</vers.jackson>

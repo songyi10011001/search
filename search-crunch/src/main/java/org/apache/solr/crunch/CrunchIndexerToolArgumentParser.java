@@ -46,7 +46,7 @@ import net.sourceforge.argparse4j.inf.ArgumentParser;
 import net.sourceforge.argparse4j.inf.ArgumentParserException;
 import net.sourceforge.argparse4j.inf.FeatureControl;
 import net.sourceforge.argparse4j.inf.Namespace;
-import parquet.avro.AvroParquetInputFormat;
+import org.apache.parquet.avro.AvroParquetInputFormat;
 
 
 /**

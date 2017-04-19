@@ -92,7 +92,7 @@ import com.google.common.io.Files;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 
-import parquet.avro.AvroParquetInputFormat;
+import org.apache.parquet.avro.AvroParquetInputFormat;
 
 
 /**
