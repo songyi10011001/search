@@ -145,7 +145,7 @@
     <!--<httpcomponents.core.version>4.3</httpcomponents.core.version>-->
 
     <kite.version>${cdh.kite.version}</kite.version>
-    <tika.version>1.5</tika.version>
+    <tika.version>1.13</tika.version>
     <!--<tika.version>${cdh.tika.version}</tika.version>-->
     <slf4j.version>${cdh.slf4j.version}</slf4j.version>
     <argparse4j.version>0.4.3</argparse4j.version>
