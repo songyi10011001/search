@@ -51,6 +51,7 @@
     <groupId>com.cloudera.cdh</groupId>
     <artifactId>cdh-root</artifactId>
     <version>6.x-SNAPSHOT</version>
+    <relativePath/> <!-- no parent resolution -->
   </parent>
 
   <modules>
