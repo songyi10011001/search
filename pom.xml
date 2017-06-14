@@ -150,7 +150,7 @@
     <!--<tika.version>${cdh.tika.version}</tika.version>-->
     <slf4j.version>${cdh.slf4j.version}</slf4j.version>
     <argparse4j.version>0.4.3</argparse4j.version>
-    <codahale.metrics.version>3.0.2</codahale.metrics.version>    
+    <dropwizard.metrics.version>3.2.2</dropwizard.metrics.version>    
     <junit.version>4.11</junit.version>
     <surefire.version>2.19.1</surefire.version>
     <maven.antrun.plugin.version>1.7</maven.antrun.plugin.version>
@@ -377,29 +377,29 @@
       
       <!-- Morphlines deps for codahale metrics -->
       <dependency>
-        <groupId>com.codahale.metrics</groupId>
+        <groupId>io.dropwizard.metrics</groupId>
         <artifactId>metrics-core</artifactId>
-        <version>${codahale.metrics.version}</version>
+        <version>${dropwizard.metrics.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.codahale.metrics</groupId>
+        <groupId>io.dropwizard.metrics</groupId>
         <artifactId>metrics-healthchecks</artifactId>
-        <version>${codahale.metrics.version}</version>
+        <version>${dropwizard.metrics.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.codahale.metrics</groupId>
+        <groupId>io.dropwizard.metrics</groupId>
         <artifactId>metrics-servlets</artifactId>
-        <version>${codahale.metrics.version}</version>
+        <version>${dropwizard.metrics.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.codahale.metrics</groupId>
+        <groupId>io.dropwizard.metrics</groupId>
         <artifactId>metrics-json</artifactId>
-        <version>${codahale.metrics.version}</version>
+        <version>${dropwizard.metrics.version}</version>
       </dependency>
       <dependency>
-        <groupId>com.codahale.metrics</groupId>
+        <groupId>io.dropwizard.metrics</groupId>
         <artifactId>metrics-jvm</artifactId>
-        <version>${codahale.metrics.version}</version>
+        <version>${dropwizard.metrics.version}</version>
       </dependency>
       
     </dependencies>
