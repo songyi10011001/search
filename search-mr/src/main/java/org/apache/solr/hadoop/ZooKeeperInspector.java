@@ -83,8 +83,7 @@ final class ZooKeeperInspector {
     }
     SolrZkClient zkClient = getZkClient(zkHost);
     
-    try {
-      ZkStateReader zkStateReader = new ZkStateReader(zkClient);
+    try (ZkStateReader zkStateReader = new ZkStateReader(zkClient)) {
       try {
         // first check for alias
         collection = checkForAlias(zkClient, collection);
