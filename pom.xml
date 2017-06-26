@@ -427,6 +427,18 @@
           </exclusion>
           <exclusion>
             <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-protocol</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-server</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-protocol-shaded</artifactId>
           </exclusion>
           <exclusion>
