@@ -71,6 +71,8 @@
     <bool name="solr.hdfs.blockcache.enabled">${solr.hdfs.blockcache.enabled:false}</bool>
     <!-- Indexer Config: Don't cache since we only write once -->
     <bool name="solr.hdfs.nrtcachingdirectory.enable">${solr.hdfs.nrtcachingdirectory.enable:false}</bool>
+    <!-- HDFS Block Locality Reporter can be toggled on and off -->
+    <bool name="solr.hdfs.locality.metrics.enabled">${solr.hdfs.locality.metrics.enabled:false}</bool>
   </directoryFactory>
 
   <!-- The CodecFactory for defining the format of the inverted index.
@@ -100,12 +102,6 @@
     -->
     <!-- Maximum time to wait for a write lock (ms) for an IndexWriter. Default: 1000 -->
     <!-- <writeLockTimeout>1000</writeLockTimeout>  -->
-
-    <!-- The maximum number of simultaneous threads that may be
-         indexing documents at once in IndexWriter; if more than this
-         many threads arrive they will wait for others to finish.
-         Default in Solr/Lucene is 8. -->
-         <maxIndexingThreads>${solr.maxIndexingThreads:8}</maxIndexingThreads>
 
     <!-- ramBufferSizeMB sets the amount of RAM that may be used by Lucene
          indexing for buffering added documents and deletions before they are
@@ -182,6 +178,7 @@
       <str name="dir">${solr.ulog.dir:}</str>
       <!-- Indexer Config: DFS Replication = 1 is sufficient -->
       <int name="tlogDfsReplication">${solr.ulog.tlogDfsReplication:1}</int>
+      <int name="numVersionBuckets">${solr.ulog.numVersionBuckets:65536}</int>      
     </updateLog>
 
     <!-- AutoCommit
