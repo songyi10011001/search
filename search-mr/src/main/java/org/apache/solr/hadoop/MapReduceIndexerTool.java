@@ -23,7 +23,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -32,6 +31,8 @@ import java.io.Writer;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
+
 import com.google.common.base.Charsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -90,6 +91,7 @@ import org.kitesdk.morphline.base.Fields;
 
 import com.google.common.base.Preconditions;
 import com.google.common.io.ByteStreams;
+import com.google.common.io.Files;
 
 
 /**
@@ -850,14 +852,18 @@ public class MapReduceIndexerTool extends Configured implements Tool {
 
         if (!options.useZkSolrConfig) {
           // replace downloaded solrconfig.xml with embedded one
-          try (InputStream source = MapReduceIndexerTool.class.getResourceAsStream("/solrconfig.indexer.xml");
-              FileOutputStream destination = new FileOutputStream(getSolrConfig(tmpSolrHomeDir))) {
-            ByteStreams.copy(source, destination);
+          String label = "ClassicIndexSchemaFactory";
+          try (InputStream source = MapReduceIndexerTool.class.getResourceAsStream("/solrconfig.indexer.xml")) {              
+            String str = new String(ByteStreams.toByteArray(source), StandardCharsets.UTF_8);
+            if (!new File(new File(tmpSolrHomeDir, "conf"), "schema.xml").exists()) {
+              str = str.replace("<schemaFactory class=\"ClassicIndexSchemaFactory\"/>", "");
+              label = "ManagedIndexSchemaFactory";
+            }
+            Files.write(str.getBytes(StandardCharsets.UTF_8), getSolrConfig(tmpSolrHomeDir));
           }
-          LOG.debug("Replaced zookeeper's solrconfig.xml with embedded version.");
+          LOG.info("Replaced the solrconfig.xml that was downloaded from ookeeper with an embedded version using " + label + ".");
         } else {
-          LOG.debug("Keeping downloaded solrconfig.xml:");
-          
+          LOG.info("Keeping downloaded solrconfig.xml.");
         }
 
         SolrOutputFormat.setupSolrHomeCache(tmpSolrHomeDir, job);
