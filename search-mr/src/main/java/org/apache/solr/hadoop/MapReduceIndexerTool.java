@@ -861,7 +861,7 @@ public class MapReduceIndexerTool extends Configured implements Tool {
             }
             Files.write(str.getBytes(StandardCharsets.UTF_8), getSolrConfig(tmpSolrHomeDir));
           }
-          LOG.info("Replaced the solrconfig.xml that was downloaded from ookeeper with an embedded version using " + label + ".");
+          LOG.info("Replaced the solrconfig.xml that was downloaded from zookeeper with an embedded version using " + label + ".");
         } else {
           LOG.info("Keeping downloaded solrconfig.xml.");
         }
