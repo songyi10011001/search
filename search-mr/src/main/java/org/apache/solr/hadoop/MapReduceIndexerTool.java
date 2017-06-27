@@ -85,6 +85,8 @@ import org.apache.solr.common.cloud.SolrZkClient;
 import org.apache.solr.hadoop.dedup.RetainMostRecentUpdateConflictResolver;
 import org.apache.solr.hadoop.morphline.MorphlineMapRunner;
 import org.apache.solr.hadoop.morphline.MorphlineMapper;
+import org.apache.solr.schema.IndexSchema;
+import org.apache.solr.schema.ManagedIndexSchemaFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.kitesdk.morphline.base.Fields;
@@ -852,12 +854,25 @@ public class MapReduceIndexerTool extends Configured implements Tool {
 
         if (!options.useZkSolrConfig) {
           // replace downloaded solrconfig.xml with embedded one
-          String label = "ClassicIndexSchemaFactory";
+          String label;
           try (InputStream source = MapReduceIndexerTool.class.getResourceAsStream("/solrconfig.indexer.xml")) {              
             String str = new String(ByteStreams.toByteArray(source), StandardCharsets.UTF_8);
-            if (!new File(new File(tmpSolrHomeDir, "conf"), "schema.xml").exists()) {
+            File schemaFile = new File(new File(tmpSolrHomeDir, "conf"), 
+                IndexSchema.DEFAULT_SCHEMA_FILE); // schema.xml 
+            if (!schemaFile.exists()) {
               str = str.replace("<schemaFactory class=\"ClassicIndexSchemaFactory\"/>", "");
               label = "ManagedIndexSchemaFactory";
+            } else {
+              label = "ClassicIndexSchemaFactory";
+              File managedSchemaFile = new File(new File(tmpSolrHomeDir, "conf"), 
+                  ManagedIndexSchemaFactory.DEFAULT_MANAGED_SCHEMA_RESOURCE_NAME); // "managed-schema"
+              LOG.debug("managedSchemaFile.exists()={}", managedSchemaFile.exists());
+              if (managedSchemaFile.exists()) {
+                LOG.info("Deleting managed schema file {}", managedSchemaFile);
+                if (!managedSchemaFile.delete()) {
+                  LOG.error("Cannot delete " + managedSchemaFile);
+                }
+              }
             }
             Files.write(str.getBytes(StandardCharsets.UTF_8), getSolrConfig(tmpSolrHomeDir));
           }
