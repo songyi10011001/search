@@ -183,6 +183,10 @@ final class ZooKeeperInspector {
     return collection;
   }
 
+  public File downloadConfigDir(SolrZkClient zkClient, String configName) throws IOException {
+    return downloadConfigDir(zkClient, configName, true);
+  }
+  
   /**
    * Download and return the config directory from ZK
    */
