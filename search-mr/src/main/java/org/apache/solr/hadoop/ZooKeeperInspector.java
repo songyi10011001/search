@@ -232,7 +232,9 @@ final class ZooKeeperInspector {
   }
 
   private static void fixupConfigDir(boolean useZkSolrConfig, File confDir) throws IOException {
-    if (!useZkSolrConfig) {
+    if (useZkSolrConfig) {
+      LOG.info("Keeping downloaded solrconfig.xml.");
+    } else {
       // replace downloaded solrconfig.xml with embedded one
       File solrConfigFile = new File(confDir, "solrconfig.xml");
       String label;
@@ -258,8 +260,6 @@ final class ZooKeeperInspector {
         Files.write(str.getBytes(StandardCharsets.UTF_8), solrConfigFile);
       }
       LOG.info("Replaced the solrconfig.xml that was downloaded from zookeeper with an embedded version using " + label + ".");
-    } else {
-      LOG.info("Keeping downloaded solrconfig.xml.");
     }
   }
 
