@@ -212,7 +212,7 @@ final class ZooKeeperInspector {
           + " </solrcloud></solr>", 
         "UTF-8");
     verifyConfigDir(confDir);
-    massageTmpSolrConfigDir(useZkSolrConfig, dir);
+    fixupConfigDir(useZkSolrConfig, confDir);
     return dir;
   }
   
@@ -231,20 +231,20 @@ final class ZooKeeperInspector {
     }    
   }
 
-  private static void massageTmpSolrConfigDir(boolean useZkSolrConfig, File solrHomeDir) throws IOException {
+  private static void fixupConfigDir(boolean useZkSolrConfig, File confDir) throws IOException {
     if (!useZkSolrConfig) {
       // replace downloaded solrconfig.xml with embedded one
+      File solrConfigFile = new File(confDir, "solrconfig.xml");
       String label;
       try (InputStream source = MapReduceIndexerTool.class.getResourceAsStream("/solrconfig.indexer.xml")) {              
         String str = new String(ByteStreams.toByteArray(source), StandardCharsets.UTF_8);
-        File schemaFile = new File(new File(solrHomeDir, "conf"), 
-            IndexSchema.DEFAULT_SCHEMA_FILE); // schema.xml 
+        File schemaFile = new File(confDir, IndexSchema.DEFAULT_SCHEMA_FILE); // schema.xml 
         if (!schemaFile.exists()) {
           str = str.replace("<schemaFactory class=\"ClassicIndexSchemaFactory\"/>", "");
           label = "ManagedIndexSchemaFactory";
         } else {
           label = "ClassicIndexSchemaFactory";
-          File managedSchemaFile = new File(new File(solrHomeDir, "conf"), 
+          File managedSchemaFile = new File(confDir, 
               ManagedIndexSchemaFactory.DEFAULT_MANAGED_SCHEMA_RESOURCE_NAME); // "managed-schema"
           LOG.debug("managedSchemaFile.exists()={}", managedSchemaFile.exists());
           if (managedSchemaFile.exists()) {
@@ -254,16 +254,13 @@ final class ZooKeeperInspector {
             }
           }
         }
-        Files.write(str.getBytes(StandardCharsets.UTF_8), getSolrConfig(solrHomeDir));
+        
+        Files.write(str.getBytes(StandardCharsets.UTF_8), solrConfigFile);
       }
       LOG.info("Replaced the solrconfig.xml that was downloaded from zookeeper with an embedded version using " + label + ".");
     } else {
       LOG.info("Keeping downloaded solrconfig.xml.");
     }
-  }
-
-  private static File getSolrConfig(File solrHomeDir) {
-    return new File(new File(solrHomeDir, "conf"), "solrconfig.xml");
   }
 
 }
