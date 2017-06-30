@@ -19,6 +19,8 @@ package org.apache.solr.hadoop;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,10 +41,13 @@ import org.apache.solr.common.cloud.ZkCoreNodeProps;
 import org.apache.solr.common.cloud.ZkNodeProps;
 import org.apache.solr.common.cloud.ZkStateReader;
 import org.apache.solr.common.util.StrUtils;
+import org.apache.solr.schema.IndexSchema;
+import org.apache.solr.schema.ManagedIndexSchemaFactory;
 import org.apache.zookeeper.KeeperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.io.ByteStreams;
 import com.google.common.io.Files;
 
 /**
@@ -181,8 +186,8 @@ final class ZooKeeperInspector {
   /**
    * Download and return the config directory from ZK
    */
-  public File downloadConfigDir(SolrZkClient zkClient, String configName)
-  throws IOException, InterruptedException, KeeperException {
+  public File downloadConfigDir(SolrZkClient zkClient, String configName, boolean useZkSolrConfig)
+  throws IOException {
     File dir = Files.createTempDir();
     dir.deleteOnExit();
     ZkConfigManager configManager = new ZkConfigManager(zkClient);
@@ -207,6 +212,7 @@ final class ZooKeeperInspector {
           + " </solrcloud></solr>", 
         "UTF-8");
     verifyConfigDir(confDir);
+    massageTmpSolrConfigDir(useZkSolrConfig, dir);
     return dir;
   }
   
@@ -223,6 +229,41 @@ final class ZooKeeperInspector {
     if (!solrConfigFile.canRead()) {
       throw new IOException("Insufficient permissions to read file: " + solrConfigFile);
     }    
+  }
+
+  private static void massageTmpSolrConfigDir(boolean useZkSolrConfig, File solrHomeDir) throws IOException {
+    if (!useZkSolrConfig) {
+      // replace downloaded solrconfig.xml with embedded one
+      String label;
+      try (InputStream source = MapReduceIndexerTool.class.getResourceAsStream("/solrconfig.indexer.xml")) {              
+        String str = new String(ByteStreams.toByteArray(source), StandardCharsets.UTF_8);
+        File schemaFile = new File(new File(solrHomeDir, "conf"), 
+            IndexSchema.DEFAULT_SCHEMA_FILE); // schema.xml 
+        if (!schemaFile.exists()) {
+          str = str.replace("<schemaFactory class=\"ClassicIndexSchemaFactory\"/>", "");
+          label = "ManagedIndexSchemaFactory";
+        } else {
+          label = "ClassicIndexSchemaFactory";
+          File managedSchemaFile = new File(new File(solrHomeDir, "conf"), 
+              ManagedIndexSchemaFactory.DEFAULT_MANAGED_SCHEMA_RESOURCE_NAME); // "managed-schema"
+          LOG.debug("managedSchemaFile.exists()={}", managedSchemaFile.exists());
+          if (managedSchemaFile.exists()) {
+            LOG.info("Deleting managed schema file {}", managedSchemaFile);
+            if (!managedSchemaFile.delete()) {
+              LOG.error("Cannot delete " + managedSchemaFile);
+            }
+          }
+        }
+        Files.write(str.getBytes(StandardCharsets.UTF_8), getSolrConfig(solrHomeDir));
+      }
+      LOG.info("Replaced the solrconfig.xml that was downloaded from zookeeper with an embedded version using " + label + ".");
+    } else {
+      LOG.info("Keeping downloaded solrconfig.xml.");
+    }
+  }
+
+  private static File getSolrConfig(File solrHomeDir) {
+    return new File(new File(solrHomeDir, "conf"), "solrconfig.xml");
   }
 
 }

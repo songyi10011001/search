@@ -850,8 +850,7 @@ public class MapReduceIndexerTool extends Configured implements Tool {
       ZooKeeperInspector zki = new ZooKeeperInspector();
       try (SolrZkClient zkClient = zki.getZkClient(options.zkHost)) {
         String configName = zki.readConfigName(zkClient, options.collection);
-        File tmpSolrHomeDir = zki.downloadConfigDir(zkClient, configName);
-        massageTmpSolrConfigDir(options.useZkSolrConfig, tmpSolrHomeDir);
+        File tmpSolrHomeDir = zki.downloadConfigDir(zkClient, configName, options.useZkSolrConfig);
         SolrOutputFormat.setupSolrHomeCache(tmpSolrHomeDir, job);
         options.solrHomeDir = tmpSolrHomeDir;
       }
@@ -1472,38 +1471,6 @@ public class MapReduceIndexerTool extends Configured implements Tool {
       LOG.error("Cannot delete " + path);
     }
     return success;
-  }
-
-  /** Warning: This is not actually a public API; for internal use only */
-  public static void massageTmpSolrConfigDir(boolean useZkSolrConfig, File tmpSolrHomeDir) throws IOException {
-    if (!useZkSolrConfig) {
-      // replace downloaded solrconfig.xml with embedded one
-      String label;
-      try (InputStream source = MapReduceIndexerTool.class.getResourceAsStream("/solrconfig.indexer.xml")) {              
-        String str = new String(ByteStreams.toByteArray(source), StandardCharsets.UTF_8);
-        File schemaFile = new File(new File(tmpSolrHomeDir, "conf"), 
-            IndexSchema.DEFAULT_SCHEMA_FILE); // schema.xml 
-        if (!schemaFile.exists()) {
-          str = str.replace("<schemaFactory class=\"ClassicIndexSchemaFactory\"/>", "");
-          label = "ManagedIndexSchemaFactory";
-        } else {
-          label = "ClassicIndexSchemaFactory";
-          File managedSchemaFile = new File(new File(tmpSolrHomeDir, "conf"), 
-              ManagedIndexSchemaFactory.DEFAULT_MANAGED_SCHEMA_RESOURCE_NAME); // "managed-schema"
-          LOG.debug("managedSchemaFile.exists()={}", managedSchemaFile.exists());
-          if (managedSchemaFile.exists()) {
-            LOG.info("Deleting managed schema file {}", managedSchemaFile);
-            if (!managedSchemaFile.delete()) {
-              LOG.error("Cannot delete " + managedSchemaFile);
-            }
-          }
-        }
-        Files.write(str.getBytes(StandardCharsets.UTF_8), getSolrConfig(tmpSolrHomeDir));
-      }
-      LOG.info("Replaced the solrconfig.xml that was downloaded from zookeeper with an embedded version using " + label + ".");
-    } else {
-      LOG.info("Keeping downloaded solrconfig.xml.");
-    }
   }
 
   /**
