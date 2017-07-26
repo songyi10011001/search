@@ -135,13 +135,19 @@ public class CrunchIndexerTool extends Configured implements Tool {
 
   static final String ZK_ENSEMBLE_FOR_PARALLEL_MORPHLINE_INITS = 
     CrunchIndexerTool.class.getName() + ".zkEnsembleForParallelMorphlineInits";
+  
+  private static final int MAGIC_SPARK_SUCCESS_EXIT_CODE = 123456789;
     
   private static final Logger LOG = LoggerFactory.getLogger(CrunchIndexerTool.class);
-
+  
   /** API for command line clients */
   public static void main(String[] args) throws Exception  {
     int exitCode = ToolRunner.run(new Configuration(), new CrunchIndexerTool(), args);
-    System.exit(exitCode);
+    if (exitCode != MAGIC_SPARK_SUCCESS_EXIT_CODE) {
+      // Per SPARK-17340 we must not call System.exit(x) in Spark YARN cluster mode to prevent the following Spark job error: 
+      // INFO yarn.ApplicationMaster: Final app status: FAILED, exitCode: 16, (reason: Shutdown hook called before final status was reported.)
+      System.exit(exitCode);
+    }
   }
 
   public CrunchIndexerTool() {}
@@ -155,6 +161,9 @@ public class CrunchIndexerTool extends Configured implements Tool {
     }
     if (exitCode.intValue() != 0 && opts.pipelineType == PipelineType.spark) {
       throw new RuntimeException("CrunchIndexerTool Spark pipeline failed"); // CDH-45888
+    }
+    if (exitCode.intValue() == 0 && opts.pipelineType == PipelineType.spark) {
+      exitCode = MAGIC_SPARK_SUCCESS_EXIT_CODE;
     }
     return exitCode;
   }
