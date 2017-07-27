@@ -161,8 +161,8 @@ solrctl --zk ${ZOOKEEPER_ENSEMBLE} instancedir --generate ${QUICKSTART_WORKINGDI
 cd ${QUICKSTART_WORKINGDIR}/emailSearch/conf || die "Unable to cd to ${QUICKSTART_WORKINGDIR}/emailSearch/conf"
 
 # Usecase specific configuration
-rm -f schema.xml
-cp $QUICKSTART_SCRIPT_DIR/schema.xml . || die "Unable to access schema.xml"
+rm -f managed-schema
+cp $QUICKSTART_SCRIPT_DIR/managed-schema . || die "Unable to access managed-schema"
 
 solrctl --zk ${ZOOKEEPER_ENSEMBLE} collection --delete enron-email-collection >& /dev/null
 solrctl --zk ${ZOOKEEPER_ENSEMBLE} instancedir --delete enron-email-collection >& /dev/null
@@ -188,6 +188,7 @@ echo Starting MapReduceIndexerTool - batch indexing of the enron emails into Sol
 hadoop \
   jar \
   ${SOLR_HOME}/contrib/mr/search-mr-*-job.jar org.apache.solr.hadoop.MapReduceIndexerTool \
+  -D 'mapreduce.job.user.classpath.first=true' \
   -D 'mapred.child.java.opts=-Xmx500m' \
   --morphline-file ${QUICKSTART_WORKINGDIR}/morphlines.conf \
   --output-dir ${HDFS_ENRON_OUTDIR} \
