@@ -419,7 +419,11 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
       Assert.assertFalse(tool.pipelineResult.succeeded());      
       Assert.assertEquals(0, tool.pipelineResult.getStageResults().size());
     } else {
-      Assert.assertEquals(0, res);
+      if (System.getProperty(LocalSparkIndexerToolTest.SPARK_MASTER) != null) {
+        Assert.assertEquals(CrunchIndexerTool.MAGIC_SPARK_SUCCESS_EXIT_CODE, res);
+      } else {
+        Assert.assertEquals(0, res);
+      }
       Assert.assertTrue(tool.pipelineResult.succeeded());      
       Assert.assertEquals(1, tool.pipelineResult.getStageResults().size());
       StageResult stageResult = tool.pipelineResult.getStageResults().get(0);

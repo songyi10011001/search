@@ -136,7 +136,7 @@ public class CrunchIndexerTool extends Configured implements Tool {
   static final String ZK_ENSEMBLE_FOR_PARALLEL_MORPHLINE_INITS = 
     CrunchIndexerTool.class.getName() + ".zkEnsembleForParallelMorphlineInits";
   
-  private static final int MAGIC_SPARK_SUCCESS_EXIT_CODE = 123456789;
+  static final int MAGIC_SPARK_SUCCESS_EXIT_CODE = 123456789;
     
   private static final Logger LOG = LoggerFactory.getLogger(CrunchIndexerTool.class);
   

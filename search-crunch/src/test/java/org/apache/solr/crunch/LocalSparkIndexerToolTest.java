@@ -34,7 +34,7 @@ public class LocalSparkIndexerToolTest extends MemoryCrunchIndexerToolTest {
 
   private String oldSparkMaster;
   
-  private static final String SPARK_MASTER = "spark.master";
+  static final String SPARK_MASTER = "spark.master";
 
   public LocalSparkIndexerToolTest() {
     this(false);
