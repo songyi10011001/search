@@ -140,10 +140,8 @@
     <solr.version>${cdh.solr.version}</solr.version>
     <solr.expected.version>${cdh.solr.version}</solr.expected.version> <!-- sanity check to verify we actually run against the expected version rather than some outdated version -->
     <avro.version>${cdh.avro.version}</avro.version>
-    <httpclient.version>4.4.1</httpclient.version>
-    <!--<httpclient.version>4.3.1</httpclient.version>-->
-    <httpcomponents.core.version>4.4.1</httpcomponents.core.version>
-    <!--<httpcomponents.core.version>4.3</httpcomponents.core.version>-->
+    <httpclient.version>${cdh.httpcomponents.version}</httpclient.version>
+    <httpcomponents.core.version>${cdh.httpcomponents.core.version}</httpcomponents.core.version>
 
     <kite.version>${cdh.kite.version}</kite.version>
     <tika.version>1.13</tika.version>
