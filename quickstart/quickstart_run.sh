@@ -42,7 +42,7 @@ while test $# != 0 ; do
   case "$1" in
     --jaas)
         JAAS_CONF="--jaas $2"
-        export HADOOP_OPTS="-Djava.security.auth.login.config=$2 -Dsolr.httpclient.builder.factory=org.apache.solr.client.solrj.impl.Krb5HttpClientConfigurer"
+        export HADOOP_OPTS="-Djava.security.auth.login.config=$2"
         shift 2
         ;;
     --echo)
