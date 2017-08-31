@@ -169,7 +169,7 @@ public class TreeMergeOutputFormat extends FileOutputFormat<Text, NullWritable> 
         // SOLR-9408
         // Set Solr's commit data so the created index is usable by SolrCloud. E.g. Currently SolrCloud relies on
         // commitTimeMSec in the commit data to do replication.
-        SolrIndexWriter.setCommitData(writer);
+        SolrIndexWriter.setCommitData(writer, -1);
 
         timer = new RTimer();
         LOG.info("Optimizing Solr: Closing index writer");
