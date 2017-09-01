@@ -464,9 +464,9 @@ public class MorphlineGoLiveMiniMRTest extends AbstractFullDistribZkTestBase {
     String replicatedCollection = "replicated_collection";
     CollectionAdminResponse rsp;
     if (TEST_NIGHTLY) {
-      rsp = createCollection(replicatedCollection, 11, 3, 11);
+      rsp = createCollection(replicatedCollection, "conf1", 11, 3, 11);
     } else {
-      rsp = createCollection(replicatedCollection, 2, 3, 2);
+      rsp = createCollection(replicatedCollection, "conf1", 2, 3, 2);
     }
     assertTrue(rsp.isSuccess());
     waitForRecoveriesToFinish(false);
