@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Files;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -205,6 +206,13 @@ class SolrRecordWriter<K, V> extends RecordWriter<K, V> {
     Path[] localArchives = DistributedCache.getLocalCacheArchives(conf);
     for (Path unpackedDir : localArchives) {
       if (unpackedDir.getName().equals(SolrOutputFormat.getZipName(conf))) {
+        
+        // copy solrHomeDir to ensure it isn't modified across multiple unit tests or multiple EmbeddedSolrServer instances
+        File tmpDir = Files.createTempDir();
+        tmpDir.deleteOnExit();
+        FileUtils.copyDirectory(new File(unpackedDir.toString()), tmpDir);
+        unpackedDir = new Path(tmpDir.getAbsolutePath());
+
         LOG.info("Using this unpacked directory as solr home: {}", unpackedDir);
         return unpackedDir;
       }

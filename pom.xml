@@ -400,6 +400,11 @@
         <artifactId>metrics-jvm</artifactId>
         <version>${dropwizard.metrics.version}</version>
       </dependency>
+      <dependency>
+        <groupId>io.dropwizard.metrics</groupId>
+        <artifactId>metrics-graphite</artifactId>
+        <version>${dropwizard.metrics.version}</version>
+      </dependency>
    
       <dependency>
         <groupId>org.apache.crunch</groupId>
@@ -450,6 +455,19 @@
         </exclusions>
       </dependency>
       
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <version>${cdh.zookeeper.version}</version>
+      </dependency>
+   
+      <dependency>
+        <groupId>org.apache.zookeeper</groupId>
+        <artifactId>zookeeper</artifactId>
+        <type>test-jar</type>
+        <version>${cdh.zookeeper.version}</version>
+      </dependency>
+   
     </dependencies>
   </dependencyManagement>
 

@@ -80,6 +80,12 @@
       <groupId>org.apache.crunch</groupId>
       <artifactId>crunch-spark</artifactId>
       <version>${crunch.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.hbase</groupId>
+          <artifactId>hbase-mapreduce</artifactId>
+        </exclusion>
+      </exclusions>      
     </dependency>
 
     <dependency>
@@ -108,26 +114,6 @@
       <artifactId>solr-test-framework</artifactId>
       <scope>test</scope>
       <version>${solr.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.solr</groupId>
-      <artifactId>solr-security-util</artifactId>
-      <version>${solr.version}</version>
-      <exclusions>
-        <exclusion>
-          <groupId>org.apache.solr</groupId>
-          <artifactId>solr-solrj</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-common</artifactId>
-        </exclusion>
-        <exclusion>
-          <groupId>org.apache.hadoop</groupId>
-          <artifactId>hadoop-core</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
     <!-- If your commands only use the core morphline library features (no Avro, no JSON, no XML, no Solr, etc,
@@ -195,6 +181,26 @@
       <version>1.0</version>
     </dependency>
     
+    <dependency>
+      <groupId>org.apache.solr</groupId>
+      <artifactId>solr-security-util</artifactId>
+      <version>${solr.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.solr</groupId>
+          <artifactId>solr-solrj</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-common</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.hadoop</groupId>
+          <artifactId>hadoop-core</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
