@@ -16,6 +16,7 @@
 package org.apache.solr.crunch;
 
 import java.io.IOException;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,6 +37,7 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.crunch.CrunchIndexerToolOptions.PipelineType;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -89,6 +91,12 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
   protected MemoryCrunchIndexerToolTest(PipelineType pipelineType, boolean isDryRun) {
     this.pipelineType = pipelineType;
     this.isDryRun = isDryRun;
+  }
+  
+  @BeforeClass
+  public static void setupMyArabicClass() throws Exception {
+    assumeTrue("This test has issues with locales with non-Arabic digits",
+        "1".equals(NumberFormat.getInstance().format(1)));
   }
     
   @Before
