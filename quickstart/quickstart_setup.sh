@@ -106,6 +106,6 @@ solrctl --zk ${ZOOKEEPER_ENSEMBLE} ${JAAS_CONF} instancedir --delete enron-email
 solrctl --zk ${ZOOKEEPER_ENSEMBLE} ${JAAS_CONF} instancedir --create enron-email-collection ${QUICKSTART_WORKINGDIR}/emailSearch || die "Unable to create configuration via solrctl"
 
 # Create a Solr collection named enron-email-collection. -s 2 indicates that this collection has two shards.
-solrctl --zk ${ZOOKEEPER_ENSEMBLE} ${JAAS_CONF} collection --create enron-email-collection -s 2 -r 1 -m 2 || die "Unable to create collection"
+solrctl --zk ${ZOOKEEPER_ENSEMBLE} ${JAAS_CONF} collection --create enron-email-collection -s 2 -r 1 -m 2 -c enron-email-collection || die "Unable to create collection"
 
 echo Completed setup, you may run quickstart_run.sh

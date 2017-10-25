@@ -110,23 +110,22 @@
          If you don't need it, consider removing it and the corresponding copyField directive.
     -->
 
-    <field name="id" type="string" indexed="true" stored="true" required="true" multiValued="false" />
     <!-- docValues are enabled by default for long type so we don't need to index the version field  -->
     <field name="_version_" type="plong" indexed="false" stored="false"/>
     <field name="_root_" type="string" indexed="true" stored="false" docValues="false" />
     <field name="_text_" type="text_general" indexed="true" stored="false" multiValued="true"/>
 
     <field name="message_id" type="string" indexed="true" stored="true" required="true" multiValued="false" /> 
-    <field name="date" type="tdate" indexed="true" stored="true"/>
-    <field name="from" type="email_general" indexed="true" stored="true"/>
-    <field name="to" type="email_general" indexed="true" stored="true"/>
+    <field name="date" type="pdate" indexed="true" stored="true"/>
+    <field name="from" type="text_general" indexed="true" stored="true"/>
+    <field name="to" type="text_general" indexed="true" stored="true"/>
     <field name="subject" type="text_general" indexed="true" stored="true"/>
-    <field name="from_names" type="names_general" indexed="true" stored="true"/>
-    <field name="to_names" type="names_general" indexed="true" stored="true"/>
-    <field name="cc" type="email_general" indexed="true" stored="true"/>
+    <field name="from_names" type="text_general" indexed="true" stored="true"/>
+    <field name="to_names" type="text_general" indexed="true" stored="true"/>
+    <field name="cc" type="text_general" indexed="true" stored="true"/>
     <field name="bcc" type="text_general" indexed="true" stored="true"/>
-    <field name="cc_names" type="names_general" indexed="true" stored="true"/>
-    <field name="bcc_names" type="names_general" indexed="true" stored="true" />
+    <field name="cc_names" type="text_general" indexed="true" stored="true"/>
+    <field name="bcc_names" type="text_general" indexed="true" stored="true" />
     <field name="x_folder" type="text_general" indexed="true" stored="false" />
     <field name="x_origin" type="text_general" indexed="true" stored="false" />
     <field name="x_filename" type="text_general" indexed="true" stored="false"/>
@@ -178,7 +177,7 @@
     <!-- Field to use to determine and enforce document uniqueness.
       Unless this field is marked with required="false", it will be a required field
     -->
-    <uniqueKey>id</uniqueKey>
+    <uniqueKey>message_id</uniqueKey>
 
     <!-- copyField commands copy one field to another at the time a document
        is added to the index.  It's used either to index the same field differently,
