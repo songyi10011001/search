@@ -1,5 +1,6 @@
-# CLOUDERA-BUILD
-export JAVA7_BUILD=true
-. /opt/toolchain/toolchain.sh
+#!/usr/bin/env bash
 
+set -e
+
+# CLOUDERA-BUILD
 mvn clean compile test-compile
