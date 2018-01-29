@@ -443,11 +443,10 @@ public class MemoryCrunchIndexerToolTest extends AbstractSolrMorphlineZkTest {
   
   private List<Map<String, Object>> sort(List<Map<String, Object>> records) {
     Collections.sort(records, new Comparator<Map>() {
-
       @Override
       public int compare(Map o1, Map o2) {
-        Comparable c1 = Iterables.toArray(o1.values(), Comparable.class)[0];
-        Comparable c2 = Iterables.toArray(o2.values(), Comparable.class)[0];
+        Comparable c1 = (Comparable) Iterables.toArray(o1.values(), Comparable.class)[0];
+        Comparable c2 = (Comparable) Iterables.toArray(o2.values(), Comparable.class)[0];
         return c1.compareTo(c2);
       }
       

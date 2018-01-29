@@ -31,7 +31,7 @@
     <parquet.version>${cdh.apache-parquet.version}</parquet.version>
     <argparse4j.version>0.4.3</argparse4j.version>
     <scala.base.version>${cdh.scala.binary.version}</scala.base.version>
-    <vers.jackson>2.6.5</vers.jackson>
+    <vers.jackson>${cdh.jackson2.version}</vers.jackson>
     <snappy.version>${cdh.hadoop-snappy.version}</snappy.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -248,6 +248,11 @@
       <dependency>
         <groupId>com.fasterxml.jackson.core</groupId>
         <artifactId>jackson-core</artifactId>
+        <version>${vers.jackson}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.fasterxml.jackson.dataformat</groupId>
+        <artifactId>jackson-dataformat-smile</artifactId>
         <version>${vers.jackson}</version>
       </dependency>
 
