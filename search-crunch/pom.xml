@@ -36,19 +36,6 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
-  <profiles>
-    <profile>
-      <id>OSX</id>
-      <activation>
-        <os><family>mac</family></os>
-      </activation>
-      <properties>
-        <!-- work-around for java 7 on OSX; see https://github.com/thinkaurelius/titan/issues/62 -->
-        <snappy.version>1.0.5.3</snappy.version> 
-      </properties>
-    </profile>
-  </profiles>
-
   <dependencies>
  
     <dependency>
