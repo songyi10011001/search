@@ -151,7 +151,7 @@
     <dropwizard.metrics.version>3.2.2</dropwizard.metrics.version>    
     <junit.version>4.11</junit.version>
     <crunch.version>${cdh.crunch.version}</crunch.version>    
-    <surefire.version>2.19.1</surefire.version>
+    <surefire.version>${cdh.surefire.version}</surefire.version>
     <maven.antrun.plugin.version>1.7</maven.antrun.plugin.version>
     <build.helper.maven.plugin.version>1.7</build.helper.maven.plugin.version>
     <apache.rat.version>0.7</apache.rat.version>
