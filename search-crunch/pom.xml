@@ -159,28 +159,6 @@
       <version>${argparse4j.version}</version>
     </dependency>
     
-    <!-- The following libraries come with Hadoop but are missing from
-         the client POM. You need them if you want to use MR LocalJobRunner
-         from the IDE. If you don't you can safely delete them. -->
-    <dependency>
-      <groupId>commons-httpclient</groupId>
-      <artifactId>commons-httpclient</artifactId>
-      <version>3.0.1</version>
-      <scope>provided</scope>
-      <exclusions>
-        <exclusion>
-          <groupId>commons-codec</groupId>
-          <artifactId>commons-codec</artifactId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    
-    <dependency>
-      <groupId>com.google.re2j</groupId>
-      <artifactId>re2j</artifactId>
-      <version>1.0</version>
-    </dependency>
-    
     <dependency>
       <groupId>org.apache.solr</groupId>
       <artifactId>solr-security-util</artifactId>
