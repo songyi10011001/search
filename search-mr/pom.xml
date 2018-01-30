@@ -34,6 +34,7 @@
   <properties>
     <hadoop.version>${cdh.hadoop.version}</hadoop.version>
     <vers.jackson>${cdh.jackson2.version}</vers.jackson>
+    <commons-lang3.version>${cdh.commons-lang3.version}</commons-lang3.version>    
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
@@ -216,7 +217,7 @@
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-      <version>3.5</version>
+      <version>${commons-lang3.version}</version>
       <scope>test</scope>
     </dependency>
 
