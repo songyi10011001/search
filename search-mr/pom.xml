@@ -45,6 +45,12 @@
   <dependencies>
 
     <dependency>
+      <groupId>org.kitesdk</groupId>
+      <artifactId>kite-morphlines-tika-decompress</artifactId>
+      <version>${kite.version}</version>
+    </dependency>     <!-- CDH-82821 -->    
+    
+    <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-client</artifactId>
       <version>${hadoop.version}</version>

@@ -51,6 +51,12 @@
     </dependency>
     
     <dependency>
+      <groupId>org.kitesdk</groupId>
+      <artifactId>kite-morphlines-tika-decompress</artifactId>
+      <version>${kite.version}</version>
+    </dependency>
+      
+    <dependency>
       <groupId>org.apache.crunch</groupId>
       <artifactId>crunch-core</artifactId>
       <version>${crunch.version}</version>
