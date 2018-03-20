@@ -5,4 +5,4 @@ set -ex
 # activate mvn-gbn wrapper
 mv "$(which mvn-gbn-wrapper)" "$(dirname "$(which mvn-gbn-wrapper)")/mvn"
 
-mvn -U clean compile test-compile
+mvn --update-snapshots --batch-mode -Dmaven.test.failure.ignore=true -Dtests.nightly=true --fail-at-end clean install
