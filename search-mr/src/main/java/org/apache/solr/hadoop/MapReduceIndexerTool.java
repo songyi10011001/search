@@ -72,6 +72,7 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobClient;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.JobContext;
+import org.apache.hadoop.mapreduce.MRJobConfig;
 import org.apache.hadoop.mapreduce.lib.input.NLineInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -721,6 +722,13 @@ public class MapReduceIndexerTool extends Configured implements Tool {
       addDistributedCacheFile(options.log4jConfigFile, getConf());
     }
 
+    // Set mapreduce.job.user.classpath.first=true
+    final String mapreduceJobUserClasspathFirst = MRJobConfig.MAPREDUCE_JOB_USER_CLASSPATH_FIRST;
+    if (getConf().get(mapreduceJobUserClasspathFirst) == null) {
+      getConf().setBoolean(mapreduceJobUserClasspathFirst, true);
+    }
+    LOG.info("Using " + mapreduceJobUserClasspathFirst + "=" + getConf().get(mapreduceJobUserClasspathFirst));
+    
     job = Job.getInstance(getConf());
     job.setJarByClass(getClass());
 
