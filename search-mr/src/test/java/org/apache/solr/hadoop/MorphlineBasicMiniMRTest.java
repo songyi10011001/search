@@ -184,7 +184,9 @@ public class MorphlineBasicMiniMRTest extends SolrTestCaseJ4 {
 //    conf.set(YarnConfiguration.NM_LOCAL_DIRS, dataDir.getPath() + File.separator +  "nm-local-dirs");
 //    conf.set(YarnConfiguration.DEFAULT_NM_LOG_DIRS, dataDir + File.separator +  "nm-logs");
     conf.set("testWorkDir", dataDir.getPath() + File.separator +  "testWorkDir");
-
+    // Default value is 90 - if you have low disk space, tests will fail.
+    conf.set("yarn.nodemanager.disk-health-checker.max-disk-utilization-per-disk-percentage", "99");
+    
     MiniDFSCluster.Builder miniDFSClusterBuilder = new MiniDFSCluster.Builder(conf).numDataNodes(dataNodes).format(true).racks(null);
     try {
       dfsCluster = miniDFSClusterBuilder.build();
