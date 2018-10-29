@@ -34,10 +34,9 @@
   <properties>
     <hadoop.version>${cdh.hadoop.version}</hadoop.version>
     <vers.jackson>${cdh.jackson2.version}</vers.jackson>
-    <commons-lang3.version>${cdh.commons-lang3.version}</commons-lang3.version>    
+    <commons-lang3.version>${cdh.commons-lang3.version}</commons-lang3.version>
 
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
-
     <test.build.dir>${project.build.directory}/test-dir</test.build.dir>
     <test.build.data>${test.build.dir}</test.build.data>
   </properties>
@@ -48,8 +47,8 @@
       <groupId>org.kitesdk</groupId>
       <artifactId>kite-morphlines-tika-decompress</artifactId>
       <version>${kite.version}</version>
-    </dependency>     <!-- CDH-82821 -->    
-    
+    </dependency>  <!-- CDH-82821 -->
+
     <dependency>
       <groupId>org.apache.hadoop</groupId>
       <artifactId>hadoop-client</artifactId>
@@ -267,12 +266,13 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${surefire.version}</version>
         <configuration>
-          <reuseForks>false</reuseForks>        
+          <reuseForks>false</reuseForks>
           <argLine>-Xmx2048m -XX:MaxDirectMemorySize=2048m</argLine>
           <environmentVariables>
             <MALLOC_ARENA_MAX>4</MALLOC_ARENA_MAX>
           </environmentVariables>
           <systemPropertyVariables>
+            <java.security.egd>file:/dev/./urandom</java.security.egd> <!-- See SOLR-10338 -->
             <solr.expected.version>${solr.expected.version}</solr.expected.version>
             <test.build.dir>${test.build.dir}</test.build.dir>
             <test.build.data>${test.build.data}</test.build.data>
