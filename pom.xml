@@ -44,13 +44,13 @@
   <groupId>com.cloudera.search</groupId>
   <artifactId>search-parent</artifactId>
   <name>Search Parent</name>
-  <version>1.0.0-cdh6.1.x-SNAPSHOT</version>
+  <version>1.0.0-cdh6.1.1</version>
   <packaging>pom</packaging>
 
   <parent>
     <groupId>com.cloudera.cdh</groupId>
     <artifactId>cdh-root</artifactId>
-    <version>6.1.x-SNAPSHOT</version>
+    <version>6.1.1</version>
     <relativePath/> <!-- no parent resolution -->
   </parent>
 
