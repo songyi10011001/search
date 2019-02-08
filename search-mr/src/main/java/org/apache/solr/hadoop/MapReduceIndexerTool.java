@@ -99,7 +99,8 @@ import com.google.common.io.ByteStreams;
  * typically a SolrCloud.
  */
 public class MapReduceIndexerTool extends Configured implements Tool {
-  
+
+  static final int GO_LIVE_DEFAULT_TIMEOUT = 24 * 3600 * 1000;
   Job job; // visible for testing only
   
   public static final String RESULTS_DIR = "results";
@@ -515,6 +516,14 @@ public class MapReduceIndexerTool extends Configured implements Tool {
               nonSolrCloud("If you are not using a SolrCloud cluster, --shard-url arguments can be used to specify each SolrCore to merge " +
               "each shard into."));
 
+      Argument goLiveTimeout = goLiveGroup.addArgument("--go-live-timeout")
+              .metavar("INTEGER")
+              .type(Integer.class)
+              .choices(new RangeArgumentChoice(1, Integer.MAX_VALUE))
+              .setDefault(Integer.valueOf(GO_LIVE_DEFAULT_TIMEOUT))
+              .required(false)
+              .help("Timeout in ms to wait for the merge to complete before the connection times out and the tool fails.");
+
       Argument collectionArg = goLiveGroup.addArgument("--collection")
         .metavar("STRING")
         .help("The SolrCloud collection to merge shards into when using --go-live and --zk-host. Example: collection1");
@@ -590,7 +599,7 @@ public class MapReduceIndexerTool extends Configured implements Tool {
       opts.goLiveMinReplicationFactor = ns.getInt(goLiveMinReplicationFactorArg.getDest());
       opts.goLiveThreads = ns.getInt(goLiveThreadsArg.getDest());
       opts.collection = ns.getString(collectionArg.getDest());
-
+      opts.goLiveTimeout = ns.getInt(goLiveTimeout.getDest());
       try {
         if (opts.reducers == 0) {
           throw new ArgumentParserException("--reducers must not be zero", parser); 
@@ -668,6 +677,7 @@ public class MapReduceIndexerTool extends Configured implements Tool {
     boolean isDryRun;
     File log4jConfigFile;
     boolean isVerbose;
+    int goLiveTimeout;
   }
   // END OF INNER CLASS  
 
