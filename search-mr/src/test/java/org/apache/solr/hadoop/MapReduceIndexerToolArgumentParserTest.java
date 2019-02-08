@@ -396,7 +396,7 @@ public class MapReduceIndexerToolArgumentParserTest extends SolrTestCaseJ4 {
         };
     assertArgumentParserException(args);
   }
-  
+
   @Test
   public void testArgsGoLiveAndSolrUrl() {
     String[] args = new String[] { 
@@ -410,9 +410,30 @@ public class MapReduceIndexerToolArgumentParserTest extends SolrTestCaseJ4 {
         };
     Integer result = parser.parseArgs(args, conf, opts);
     assertNull(result);
+    assertTrue(opts.goLive);
+    assertEquals(MapReduceIndexerTool.GO_LIVE_DEFAULT_TIMEOUT, opts.goLiveTimeout);
     assertEmptySystemErrAndEmptySystemOut();
   }
-  
+
+  @Test
+  public void testArgsGoLiveAndSolrUrlWithTimeOut() {
+    String[] args = new String[] {
+            "--input-list", "file:///tmp",
+            "--morphline-file", MORPHLINE_FILE,
+            "--output-dir", "file:/tmp/foo",
+            "--solr-home-dir", MINIMR_INSTANCE_DIR.getPath(),
+            "--shard-url", "http://localhost:8983/solr/collection1",
+            "--shard-url", "http://localhost:8983/solr/collection1",
+            "--go-live", "--go-live-timeout", "42"
+
+    };
+    Integer result = parser.parseArgs(args, conf, opts);
+    assertNull(result);
+    assertTrue(opts.goLive);
+    assertEquals(42, opts.goLiveTimeout);
+    assertEmptySystemErrAndEmptySystemOut();
+  }
+
   @Test
   public void testArgsZkHostNoGoLive() throws Exception {
     String[] args = new String[] { 

@@ -21,6 +21,7 @@ import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
@@ -98,7 +99,8 @@ class GoLive {
             req.isLeader = urls.indexOf(url) == 0;
             req.shard = shard;
             LOG.info("Live merge " + dir.getPath() + " into " + mergeUrl);
-            try (final HttpSolrClient client = new HttpSolrClient.Builder(mergeUrl).build()) {
+            try (final HttpSolrClient client = new HttpSolrClient.Builder(mergeUrl)
+                    .withSocketTimeout(options.goLiveTimeout).build()) {
               CoreAdminRequest.MergeIndexes mergeRequest = new CoreAdminRequest.MergeIndexes();
               mergeRequest.setCoreName(name);
               mergeRequest.setIndexDirs(Arrays.asList(dir.getPath().toString() + "/data/index"));
@@ -159,7 +161,8 @@ class GoLive {
       try {
         LOG.info("Committing live merge...");
         if (options.zkHost != null) {
-          try (CloudSolrClient server = new CloudSolrClient.Builder().withZkHost(options.zkHost).build()) {
+          try (CloudSolrClient server = new CloudSolrClient.Builder(Arrays.asList(options.zkHost), Optional.empty())
+                  .withSocketTimeout(options.goLiveTimeout).build()) {
             server.setDefaultCollection(options.collection);
             server.commit();
           }
@@ -167,7 +170,8 @@ class GoLive {
           for (List<String> urls : options.shardUrls) {
             for (String url : urls) {
               // TODO: we should do these concurrently
-              try (HttpSolrClient server = new HttpSolrClient.Builder(url).build()) {
+              try (HttpSolrClient server = new HttpSolrClient.Builder(url)
+                      .withSocketTimeout(options.goLiveTimeout).build()) {
                 server.commit();
               }
             }
