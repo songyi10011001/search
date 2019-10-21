@@ -180,6 +180,10 @@
         <enabled>false</enabled>
       </releases>
     </repository>
+    <repository>
+      <id>p2.jfrog.org</id>
+      <url>http://p2.jfrog.org/libs-releases</url>
+    </repository>
   </repositories>
 
   <dependencyManagement>
